@@ -1,0 +1,11 @@
+img::EasyImage generateImage(const ini::Configuration &conf) {
+    LSystem ls = lsys_parse(conf);
+    vector<Point2D> points;
+    ls.computePoints(points);
+
+    ls.setPoints(points);
+    Lines2D myLines = lineDrawer._getLineArray(points, ls.color);
+    img::EasyImage image;
+    image = lineDrawer.draw2Dlines(myLines, ls.size);
+    return image;
+};
