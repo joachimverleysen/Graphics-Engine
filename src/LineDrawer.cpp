@@ -103,16 +103,6 @@ vector<Point2D> LineDrawer::getPointArray(const Lines2D &lines) {
     return result;
 }
 
-Lines2D LineDrawer::getLineArray(const vector<Point2D> &points, Color col) {
-    // Pairs the Points in the pointArray 2 by 2 to create lines
-    Lines2D result;
-    for (int i=0; i<points.size(); i+=2) {
-        Line2D line(points[i], points[i+1], col);
-        result.push_back(line);
-    }
-    return result;
-}
-
 //todo: correct colors from ini file
 img::EasyImage LineDrawer::draw2Dlines(Lines2D &lines, const int size, Color &bgColor) {
     double Xmin = 0;

@@ -5,7 +5,7 @@
 #ifndef MYENGINE_FIGURE_H
 #define MYENGINE_FIGURE_H
 #include "LineDrawer.h"
-#include "vector3d.h"
+#include "../tools/vector3d.h"
 #include <vector>
 
 class Face {
@@ -16,13 +16,13 @@ public:
 class Figure {
     vector<Vector3D> points;
     vector<Face> faces; // vlakken
-    Color color;
-    int size;
-    double scale;
-    int rotateX;
-    int rotateY;
-    int rotateZ;
-    Vector3D center;
+    Color color = Color(1,1,1);
+    int size = 768;
+    double scale=1.0;
+    int rotateX=0;
+    int rotateY=0;
+    int rotateZ=0;
+    Vector3D center = Vector3D::point(0,0,0);
 public:
 
     vector<Point2D> proj_points;

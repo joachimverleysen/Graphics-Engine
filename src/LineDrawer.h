@@ -6,7 +6,7 @@
 #define MYENGINE_LINEDRAWER_H
 
 
-#include "easy_image.h"
+#include "../tools/easy_image.h"
 #include <list>
 #include <cmath>
 
@@ -49,8 +49,6 @@ public:
     void drawLine2D(img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &lineColor);
 
     vector<Point2D> getPointArray (const Lines2D &lines);
-
-    Lines2D getLineArray(const vector<Point2D> &points, Color col=Color(1,1,1));
 
     img::EasyImage draw2Dlines(Lines2D &lines, const int size, Color &bgColor);;
 

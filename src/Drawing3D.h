@@ -7,18 +7,18 @@
 
 #include "LineDrawer.h"
 #include "Figure.h"
-#include "vector3d.h"
+#include "../tools/vector3d.h"
 #include <string>
 #include <vector>
 #include <iostream>
 using namespace std;
 
 class Drawing3D {
-int size = 0;
+int size = 768;
 string type;
 Color bgColor=Color(0,0,0);
 int nrFigures=0;
-Vector3D eye=Vector3D::point(0,0,0);
+Vector3D eye=Vector3D::point(1,0,0);
 Figures3D figures;
 
 public:

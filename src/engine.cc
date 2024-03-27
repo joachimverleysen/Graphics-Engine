@@ -1,10 +1,11 @@
-#include "easy_image.h"
-#include "ini_configuration.h"
+#include "../tools/easy_image.h"
+#include "../tools/ini_configuration.h"
 #include "LineDrawer.h"
 #include "LSystem.h"
-#include "vector3d.h"
+#include "../tools/vector3d.h"
 #include "Figure.h"
 #include "Drawing3D.h"
+#include "Solid3D.h"
 
 #include <fstream>
 #include <iostream>
@@ -15,7 +16,6 @@
 
 using namespace std;
 
-LineDrawer lineDrawer;
 
 double degree_to_rad(double deg) {
     return deg*M_PI/180;
@@ -112,17 +112,17 @@ Lines2D _computeLines(Figure &fig) {
         }
         else if (face.point_indexes.size() > 2) {
             for (int i = 0; i < face.point_indexes.size(); i++) {
-                Point2D p1 = fig.getProjPoints()[i];
+                Point2D p1 = fig.getProjPoints()[face.point_indexes[i]];
                 Point2D p2(-1,-1);
                 if (i == face.point_indexes.size()-1) {
-                    p2 = fig.getProjPoints()[0];    // Connect last point with first point
+                    p2 = fig.getProjPoints()[face.point_indexes[0]];    // Connect last point with first point
                 }
-                else p2 = fig.getProjPoints()[i+1];
+                else p2 = fig.getProjPoints()[face.point_indexes[i+1]];
 
                 // Adding points in pairs to the vector to facilitate generating lineArray
                 points.push_back(p1);
                 points.push_back(p2);
-                }
+            }
             Lines2D lines = _getLineArray(points, col);
             result.insert(result.end(), lines.begin(), lines.end());
         }
@@ -201,12 +201,11 @@ Lines2D do_projection(Drawing3D &drawing) {
         _convert_fig_to_eyesys(fig, drawing.getEye());
         vector<Point2D> proj_points = _compute_proj_points(fig);
         fig.setProjPoints(proj_points);
-        vector<Face> faces = fig.getFaces();
+//        vector<Face> faces = fig.getFaces();
         Lines2D lines = _computeLines(fig);
         result.insert(result.end(), lines.begin(), lines.end());
     }
     return result;
-
 }
 
 void drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawing) {
@@ -221,18 +220,24 @@ void drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawing) {
     drawing.setEye(Vector3D::point(eye[0], eye[1], eye[2]));
     drawing.setSize(size);
 
+    Solid3D s3d;
+
     //FIGURES
     for (int i=0; i<nrFigures; i++) {
         string figname = "Figure"+ to_string(i);
-
         Figure fig;
-        int nrPoints = conf[figname]["nrPoints"].as_int_or_die();
-        int nrLines = conf[figname]["nrLines"].as_int_or_die();
+        string figType = conf[figname]["type"].as_string_or_die();
+        bool lineDrawing = (figType == "LineDrawing");
+
+        int nrPoints = conf[figname]["nrPoints"].as_int_or_default(0);
+        int nrLines = conf[figname]["nrLines"].as_int_or_default(0);
         vector<double> color = conf[figname]["color"].as_double_tuple_or_die();
         double scale = conf[figname]["scale"].as_double_or_default(1.0);
         int rotateX = conf[figname]["rotateX"].as_int_or_die();
         int rotateY = conf[figname]["rotateY"].as_int_or_die();
         int rotateZ = conf[figname]["rotateZ"].as_int_or_die();
+        vector<double> center_ = conf[figname]["center"].as_double_tuple_or_die();
+        Vector3D center  = Vector3D::point(center_[0], center_[1], center_[2]);
 
         fig.setColor(Color(color[0], color[1], color[2]));
         fig.setSize(size);
@@ -240,6 +245,15 @@ void drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawing) {
         fig.setRotateX(rotateX);
         fig.setRotateY(rotateY);
         fig.setRotateZ(rotateZ);
+        fig.setCenter(center);
+
+        if (figType == "Cube") {
+            s3d.generateCube(fig);
+        };
+
+        if (figType == "Tetrahedron") {
+            s3d.generateTetrahedron(fig);
+        };
 
         //POINTS
         vector<Vector3D> points;
@@ -249,7 +263,6 @@ void drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawing) {
             Vector3D point = Vector3D::point(_pt[0], _pt[1], _pt[2]);
             points.push_back(point);
         }
-        fig.setPoints(points);
         //LINES
         vector<Face> faces;
         for (int i=0; i<nrLines; i++) {
@@ -260,10 +273,13 @@ void drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawing) {
             faces.push_back(face);
 
         }
-        fig.setFaces(faces);
+        if (lineDrawing) {
+            fig.setFaces(faces);
+            fig.setPoints(points);
+        }
+
         drawing.addFigure(fig);
     }
-    //todo: parse all figs
 
 }
 
@@ -287,6 +303,15 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
     Drawing3D drawing;
     LineDrawer ld;
     drawing3D_parse(conf, drawing);
+
+//    Solid3D solid3D;
+//    Figure cube;
+//    solid3D.generateCube(cube);
+//    figs.push_back(cube);
+//    drawing.setFigures(figs);
+//    drawing.setEye(Vector3D::point(100, 30, 30));
+
+
     Lines2D lines = do_projection(drawing);
     Color bgCol = drawing.getBgColor();
     image = ld.draw2Dlines(lines, drawing.getSize(), bgCol);
