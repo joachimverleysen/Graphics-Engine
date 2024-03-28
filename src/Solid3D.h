@@ -27,6 +27,15 @@ public:
     void generateIcosahedron(Figure& fig);
 
     void generateDodecahedron(Figure& fig);
+
+    void generateSphere(Figure &fig, int n);
+
+    void generateCone(Figure &fig, const int n, const double h);
+
+    void generateCylinder(Figure& fig, const int n, const double h);
+
+    void generateTorus(Figure& fig, double r, double R, int n, int m);
+
 };
 
 

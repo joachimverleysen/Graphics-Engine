@@ -31,6 +31,8 @@ set(engine_sources
 		src/Drawing3D.h
 		src/Solid3D.cpp
 		src/Solid3D.h
+		src/MyParser.cpp
+		src/MyParser.h
 )
 
 ############################################################

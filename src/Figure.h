@@ -11,6 +11,11 @@
 class Face {
 public:
     vector<int> point_indexes;
+public:
+    Face(vector<int> indexes) : point_indexes(indexes) {};
+
+    Face() {};
+
 };
 
 class Figure {
