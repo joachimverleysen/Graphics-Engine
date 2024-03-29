@@ -22,8 +22,8 @@ set(engine_sources
 		src/LineDrawer.h
 		tools/l_parser.h
 		tools/l_parser.cc
-		src/LSystem.cpp
-		src/LSystem.h
+		src/MyLSystem2D.cpp
+		src/MyLSystem2D.h
 		tools/vector3d.cc
 		src/Figure.cpp
 		src/Figure.h
@@ -33,6 +33,8 @@ set(engine_sources
 		src/Solid3D.h
 		src/MyParser.cpp
 		src/MyParser.h
+		src/MyLSystem3D.cpp
+		src/MyLSystem3D.h
 )
 
 ############################################################

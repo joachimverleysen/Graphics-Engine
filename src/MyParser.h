@@ -8,7 +8,7 @@
 
 #include "../tools/ini_configuration.h"
 #include "Drawing3D.h"
-#include "LSystem.h"
+#include "MyLSystem2D.h"
 
 /**
  * This class parses ini files
@@ -18,7 +18,7 @@ class MyParser {
 public:
     void drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawing);
 
-    LSystem lsys_parse(const ini::Configuration &conf);
+    MyLSystem2D lsys_parse(const ini::Configuration &conf);
 };
 
 

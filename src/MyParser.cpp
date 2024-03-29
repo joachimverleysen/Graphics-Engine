@@ -7,7 +7,8 @@
 #include "Drawing3D.h"
 #include "LineDrawer.h"
 #include "Solid3D.h"
-#include "LSystem.h"
+#include "MyLSystem2D.h"
+#include "MyLSystem3D.h"
 
 
 void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawing) {
@@ -15,8 +16,8 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
     std::string genType = conf["General"]["type"].as_string_or_die();
     int size = conf["General"]["size"].as_int_or_die();
     vector<double> bgColor = conf["General"]["backgroundcolor"].as_double_tuple_or_die();
-    int nrFigures = conf["General"]["nrFigures"].as_int_or_die();
-    vector<double> eye = conf["General"]["eye"].as_double_tuple_or_die();
+    int nrFigures = conf["General"]["nrFigures"].as_int_or_default(0);
+    vector<double> eye = conf["General"]["eye"].as_double_tuple_or_default({0,0,0});
 
     drawing.setBgColor(Color(bgColor[0], bgColor[1], bgColor[2]));
     drawing.setEye(Vector3D::point(eye[0], eye[1], eye[2]));
@@ -45,6 +46,7 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
         double r = conf[figname]["r"].as_double_or_default(0);
         double R = conf[figname]["R"].as_double_or_default(0);
         int m = conf[figname]["m"].as_int_or_default(0);
+        string inputfile = conf[figname]["inputfile"].as_string_or_default("");
 
         fig.setColor(Color(color[0], color[1], color[2]));
         fig.setSize(size);
@@ -81,7 +83,13 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
         if (figType == "Torus") {
             s3d.generateTorus(fig, r, R, n, m);
         };
-
+        if (figType == "Torus") {
+            s3d.generateTorus(fig, r, R, n, m);
+        };
+        if (figType == "3DLSystem") {
+            MyLSystem3D lsys(inputfile);
+            lsys.generateFigure(fig);
+        };
 
         //POINTS
         vector<Vector3D> points;
@@ -110,16 +118,16 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
     }
 }
 
-LSystem MyParser::lsys_parse(const ini::Configuration &conf) {
+MyLSystem2D MyParser::lsys_parse(const ini::Configuration &conf) {
     std::string type = conf["General"]["type"].as_string_or_die();
     int size = conf["General"]["size"].as_int_or_die();
 
     vector<double> bgColor = conf["General"]["backgroundcolor"].as_double_tuple_or_die();
     string inputfile = conf["2DLSystem"]["inputfile"].as_string_or_die();
     vector<double> color = conf["2DLSystem"]["color"].as_double_tuple_or_die();
-    LSystem result(inputfile);
-    result.size = (size);
-    result.color = (Color(*(color.begin()), *(color.begin()+1), *(color.begin()+2)));
-    result.bgColor = (Color(*(bgColor.begin()), *(bgColor.begin()+1), *(bgColor.begin()+2)));
+    MyLSystem2D result(inputfile);
+    result.setSize(size);
+    result.setColor(Color(*(color.begin()), *(color.begin()+1), *(color.begin()+2)));
+    result.setBgColor(Color(*(bgColor.begin()), *(bgColor.begin()+1), *(bgColor.begin()+2)));
     return result;
 }

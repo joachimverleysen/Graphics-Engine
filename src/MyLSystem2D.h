@@ -2,8 +2,8 @@
 // Created by joachimverleysen on 2/27/24.
 //
 
-#ifndef MYENGINE_LSYSTEM_H
-#define MYENGINE_LSYSTEM_H
+#ifndef MYENGINE_MYLSYSTEM2D_H
+#define MYENGINE_MYLSYSTEM2D_H
 
 #include "LineDrawer.h"
 
@@ -19,8 +19,10 @@ using namespace std;
 
 class Color;
 
-class LSystem {
-public:
+class MyLSystem2D {
+    vector<Point2D> points;
+
+private:
     string inputfile;
     set<char> alphabet;
     double Angle;
@@ -28,7 +30,6 @@ public:
     double starting_angle;
     string finalString;    // Result string after the rules rules have been applied (i times)
     map<char, int> drawFunction;
-    vector<Point2D> Points;
     Lines2D lines;
     map<char, string> rules;
     int size;
@@ -37,7 +38,7 @@ public:
     unsigned int iterations;
 
 public:
-    LSystem(string inputfile) : inputfile(inputfile) {parser(inputfile);}
+    MyLSystem2D(string inputfile) : inputfile(inputfile) {parser(inputfile);}
 
     int parser(string inputfile);
 
@@ -60,8 +61,54 @@ public:
     void applyReplacement(string &s);
 
     void recursiveReplace(string &s, int iterations, Point2D &currPos, double angl, vector<Point2D> &_points);
+
+    vector<Point2D> const getPoints();
+
+    const string &getInputfile() const;
+
+    void setInputfile(const string &inputfile);
+
+    const set<char> &getAlphabet() const;
+
+    double getAngle() const;
+
+    const string &getInitiator() const;
+
+    double getStartingAngle() const;
+
+    const string &getFinalString() const;
+
+    void setFinalString(const string &finalString);
+
+    const map<char, int> &getDrawFunction() const;
+
+    void setDrawFunction(const map<char, int> &drawFunction);
+
+    const Lines2D &getLines() const;
+
+    void setLines(const Lines2D &lines);
+
+    const map<char, string> &getRules() const;
+
+    void setRules(const map<char, string> &rules);
+
+    int getSize() const;
+
+    void setSize(int size);
+
+    const Color &getColor() const;
+
+    void setColor(const Color &color);
+
+    const Color &getBgColor() const;
+
+    void setBgColor(const Color &bgColor);
+
+    unsigned int getIterations() const;
+
+    void setIterations(unsigned int iterations);
 };
 
 
 
-#endif //MYENGINE_LSYSTEM_H
+#endif //MYENGINE_MYLSYSTEM2D_H

@@ -36,6 +36,8 @@ public:
 
     void generateTorus(Figure& fig, double r, double R, int n, int m);
 
+
+
 };
 
 

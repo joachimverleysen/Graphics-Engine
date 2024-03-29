@@ -234,7 +234,7 @@ void img::EasyImage::draw_line(unsigned int x0, unsigned int y0, unsigned int x1
 	{
 		if (x0 > x1)
 		{
-			//flip Points if x1>x0: we want x0 to have the lowest value
+			//flip points if x1>x0: we want x0 to have the lowest value
 			std::swap(x0, x1);
 			std::swap(y0, y1);
 		}

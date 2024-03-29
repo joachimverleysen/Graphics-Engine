@@ -1,7 +1,7 @@
 #include "../tools/easy_image.h"
 #include "../tools/ini_configuration.h"
 #include "LineDrawer.h"
-#include "LSystem.h"
+#include "MyLSystem2D.h"
 #include "../tools/vector3d.h"
 #include "Figure.h"
 #include "Drawing3D.h"
@@ -17,6 +17,7 @@
 
 using namespace std;
 
+enum class drawingType {LSystem2D, Wireframe, LSystem3D};
 
 double degree_to_rad(double deg) {
     return deg*M_PI/180;
@@ -88,7 +89,7 @@ vector<Point2D> _compute_proj_points(Figure &fig) {
 }
 
 Lines2D _getLineArray(const vector<Point2D> &points, Color col) {
-    // Pairs the Points in the pointArray 2 by 2 to create lines
+    // Pairs the points in the pointArray 2 by 2 to create lines
     Lines2D result;
     for (int i=0; i<points.size(); i+=2) {
         Line2D line(points[i], points[i+1], col);
@@ -213,16 +214,13 @@ Lines2D do_projection(Drawing3D &drawing) {
 
 img::EasyImage generateImage(const ini::Configuration &conf) {
     img::EasyImage image;
-    Drawing3D drawing;
-    LineDrawer ld;
     MyParser parser;
+    LineDrawer ld;
+    Drawing3D drawing;
     parser.drawing3D_parse(conf, drawing);
-
-
     Lines2D lines = do_projection(drawing);
-    Color bgCol = drawing.getBgColor();
-    image = ld.draw2Dlines(lines, drawing.getSize(), bgCol);
-
+    Color bgcolor = drawing.getBgColor();
+    image = ld.draw2Dlines(lines, drawing.getSize(), bgcolor);
     return image;
 }
 
@@ -298,7 +296,7 @@ int main(int argc, char const* argv[])
         //When you run out of memory this exception is thrown. When this happens the return value of the program MUST be '100'.
         //Basically this return value tells our automated drawLine2D scripts to run your engine on a pc with more memory.
         //(Unless of course you are already consuming the maximum allowed amount of memory)
-        //If your engine does NOT adhere to this requirement you risk losing Points because then our scripts will
+        //If your engine does NOT adhere to this requirement you risk losing points because then our scripts will
         //mark the drawLine2D as failed while in reality it just needed a bit more memory
         std::cerr << "Error: insufficient memory" << std::endl;
         retVal = 100;

@@ -103,7 +103,6 @@ vector<Point2D> LineDrawer::getPointArray(const Lines2D &lines) {
     return result;
 }
 
-//todo: correct colors from ini file
 img::EasyImage LineDrawer::draw2Dlines(Lines2D &lines, const int size, Color &bgColor) {
     double Xmin = 0;
     double Ymin = 0;
