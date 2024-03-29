@@ -1,0 +1,68 @@
+//
+// Created by joachimverleysen on 3/29/24.
+//
+
+#ifndef MYENGINE_MYLSYSTEM3D_H
+#define MYENGINE_MYLSYSTEM3D_H
+
+#include "LineDrawer.h"
+#include "../tools/vector3d.h"
+#include "Figure.h"
+#include <string>
+#include <vector>
+#include <set>
+#include <cmath>
+#include <map>
+#include <fstream>
+#include <algorithm>
+
+using namespace std;
+
+class MyLSystem3D {
+    string inputfile;
+    set<char> alphabet;
+    double Angle;
+    string initiator;
+    double starting_angle;
+    string finalString;    // Result string after the rules rules have been applied (i times)
+    map<char, int> drawFunction;
+    vector<Vector3D> points;
+    vector<Face> faces;
+    Lines2D lines;
+    map<char, string> rules;
+    int size;
+    Color color;
+    Color bgColor;
+    unsigned int iterations;
+
+public:
+    MyLSystem3D(string inputfile) : inputfile(inputfile) {parser(inputfile);}
+
+    int parser(string inputfile);
+
+    void setAlphabet(const set<char> &alphabet);
+
+    void setAngle(double angle);
+
+    void setInitiator(const string &initiator);
+
+    void setStartingAngle(double startingAngle);
+
+
+    void computePoints();
+
+    void _str2Points(const string &str);
+
+    void applyReplacement(string &s);
+
+    void generateFigure(Figure &fig);
+
+    vector<Vector3D> const getPoints();
+
+    void setPoints(const vector<Vector3D> &points);
+
+    void setFaces(const vector<Face> &faces);
+};
+
+
+#endif //MYENGINE_MYLSYSTEM3D_H
