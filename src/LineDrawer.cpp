@@ -167,9 +167,7 @@ img::EasyImage LineDrawer::draw2Dlines(Lines2D &lines, const int size, Color &bg
     for (auto line : lines) {
         draw_zbuf_line(zBuffer, myImage, line.p1, line.p2, line.color);
     }
-    std::ofstream fout("../out/out.bmp", std::ios::binary);
-    fout << myImage;
-    fout.close();
+
     return myImage;
 }
 
@@ -217,9 +215,9 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
 
     int a;
     double z_val;
-
+    a = max(image.get_width(), image.get_height());
     if (Xa==Xb) {   // Vertical line
-        a=y_distance;
+//        a=y_distance;
         for(unsigned int i = Xa; i<=Xb; i++) {
             z_val = compute_1_on_z(pt1, pt2, a-i, a);
 
@@ -235,7 +233,7 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
         }
     }
     else if (pt1.y == pt2.y) {   // Horizontal line
-        a=x_distance;
+//        a=x_distance;
 
         for(unsigned int i = Xa; i <= Xb ; i++) {
             for (unsigned int j = Ya; j <= Yb; j++) {
@@ -255,7 +253,7 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
         }
     }
     else if (m>0 && m<=1 || m >=-1 && m<0) {     // Cursus: geval 1 en 2
-        a=x_distance;
+//        a=x_distance;
 
         for(unsigned int i = 0; i <= Xb - Xa; i++) {
 
@@ -276,7 +274,7 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
     }
 
     else if (m > 1) {     // Cursus: geval 3
-        a=y_distance;
+//        a=y_distance;
         for(unsigned int i = 0; i <= y_distance; i++) {
 
             int Xi = lround(Xa + (i / m));
@@ -295,7 +293,7 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
     }
 
     else if (m < -1) {     // Cursus: geval 4
-        a=y_distance;
+//        a=y_distance;
         for(unsigned int i = 0; i <= y_distance; i++) {
             int Xi = lround(Xa - (i / m));
             int Yi = Ya - i;

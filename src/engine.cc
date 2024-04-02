@@ -23,13 +23,13 @@ enum class drawingType {LSystem2D, Wireframe, LSystem3D};
 
 
 
-Lines2D do_projection(Drawing3D &drawing) {
+Lines2D do_projection(Figures3D& figures, Vector3D& eye) {
     MyTools mt;
     Lines2D result;
-    Figures3D figs = drawing.getFigures();
+    Figures3D figs = figures;
     for (Figure &fig : figs) {
         mt.doTransitions(fig);
-        mt.convert_fig_to_eyesys(fig, drawing.getEye());
+        mt.convert_fig_to_eyesys(fig, eye);
         vector<Point2D> proj_points = mt.compute_proj_points(fig);
         fig.setProjPoints(proj_points);
 //        vector<Face> faces = fig.getFaces();
@@ -47,9 +47,14 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
     LineDrawer ld;
     Drawing3D drawing;
     parser.drawing3D_parse(conf, drawing);
-    Lines2D lines = do_projection(drawing);
+    Figures3D figs = drawing.getFigures();
+    Vector3D eye = drawing.getEye();
+    Lines2D lines = do_projection(figs, eye);
     Color bgcolor = drawing.getBgColor();
     image = ld.draw2Dlines(lines, drawing.getSize(), bgcolor);
+    std::ofstream fout("../out.bmp", std::ios::binary);
+    fout << image;
+    fout.close();
     return image;
 }
 
