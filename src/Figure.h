@@ -7,6 +7,7 @@
 #include "LineDrawer.h"
 #include "../tools/vector3d.h"
 #include <vector>
+using std::vector;
 
 class Face {
 public:

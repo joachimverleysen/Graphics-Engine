@@ -35,6 +35,8 @@ set(engine_sources
 		src/MyParser.h
 		src/MyLSystem3D.cpp
 		src/MyLSystem3D.h
+		src/ZBuffer.h
+		src/MyTools.cpp
 )
 
 ############################################################
