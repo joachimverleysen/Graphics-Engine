@@ -57,7 +57,7 @@ img::EasyImage draw_with_colorfill(Drawing3D& drawing) {
     LineDrawer ld;
     Vector3D eye = drawing.getEye();
     Color bgColor = drawing.getBgColor();
-//    doTransitions(drawing);
+    doTransitions(drawing);
     Figures3D figs = drawing.getFigures();
 
     for (auto& f : figs) {

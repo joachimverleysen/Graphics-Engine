@@ -57,6 +57,16 @@ struct Dimensions {
     int width, height;
 };
 
+
+struct ZBuffData {
+    double one_on_zG;
+    double xG;
+    double yG;
+    double dzdx;
+    double dzdy;
+};
+
+
 class LineDrawer {
 public:
 
@@ -68,7 +78,8 @@ public:
 
     img::EasyImage draw2Dlines(Lines2D &lines, const int size, Color &bgColor);;
 
-    void draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &color);
+    void draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &color,
+                        bool triag_filling, ZBuffData zbd);
 
     void draw_zbuf_triag(ZBuffer& zbuffer, img::EasyImage& img,
                          Vector3D const& A,
