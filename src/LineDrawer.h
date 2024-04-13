@@ -80,8 +80,9 @@ public:
                          Color color);
 
 
-    void computeDims(Dimensions &dims, Lines2D &lines, const int size);
+    Dimensions computeDims(Lines2D &lines, const int size);
 
+    void rescalePoint2D(Point2D &p, double d, double dx, double dy);
 };
 
 

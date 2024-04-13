@@ -3,6 +3,7 @@
 //
 
 #include "LineDrawer.h"
+#include "MyTools.h"
 #include <fstream>
 
 void LineDrawer::drawLine2D(img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &lineColor) {
@@ -104,7 +105,8 @@ vector<Point2D> LineDrawer::getPointArray(const Lines2D &lines) {
 }
 
 
-void LineDrawer::computeDims(Dimensions& dims, Lines2D& lines, const int size) {
+Dimensions LineDrawer::computeDims(Lines2D &lines, const int size) {
+    Dimensions dims;
     vector<Point2D> points = getPointArray(lines);
 
 // Compute max values
@@ -128,37 +130,33 @@ void LineDrawer::computeDims(Dimensions& dims, Lines2D& lines, const int size) {
     dims.dy = (dims.imgY/2) - dims.DCy;
     dims.width = lround(dims.imgX);
     dims.height = lround(dims.imgY);
+    return dims;
+}
+
+void LineDrawer::rescalePoint2D(Point2D& p, double d, double dx, double dy) {
+    // scale factor
+    p.x *= d;
+    p.y *= d;
+    // Verschuiven door offset (dx, dy) op te tellen
+    p.x += dx;
+    p.y += dy;
+    // afronden
+    p.x = lround(p.x);
+    p.y = lround(p.y);
+
 }
 
 img::EasyImage LineDrawer::draw2Dlines(Lines2D &lines, const int size, Color &bgColor) {
-    Dimensions dims;
-    computeDims(dims, lines, size);
+    Dimensions dims = computeDims(lines, size);
 
 
     img::EasyImage myImage(dims.width, dims.height);
     setBackground(myImage, bgColor);
-    
+
     for (Line2D &line : lines) {
-        // scale factor
-        line.p1.x *= dims.d;
-        line.p1.y *= dims.d;
-        // Verschuiven door offset (dx, dy) op te tellen
-        line.p1.x += dims.dx;
-        line.p1.y += dims.dy;
-        // afronden
-        line.p1.x = lround(line.p1.x);
-        line.p1.y = lround(line.p1.y);
+        rescalePoint2D(line.p1, dims.d, dims.dx, dims.dy);
+        rescalePoint2D(line.p2, dims.d, dims.dx, dims.dy);
 
-        // scale factor
-        line.p2.x *= dims.d;
-        line.p2.y *= dims.d;
-        // Verschuiven door offset (dx, dy) op te tellen
-        line.p2.x += dims.dx;
-        line.p2.y += dims.dy;
-
-        // afronden
-        line.p2.x = lround(line.p2.x);
-        line.p2.y = lround(line.p2.y);
     }
 
     ZBuffer zBuffer(dims.width, dims.height);
@@ -328,40 +326,53 @@ void LineDrawer::draw_zbuf_triag(ZBuffer &zbuffer, img::EasyImage &img,
                                  Color color) {
 
     double INFTY = std::numeric_limits<double>::infinity();
+    MyTools mt;
+    Point2D a = proj_point(A, 1);
+    Point2D b = proj_point(B, 1);
+    Point2D c = proj_point(C, 1);
 
-    Point2D a = proj_point(A, 0.95);
-    Point2D b = proj_point(B, 0.95);
-    Point2D c = proj_point(C, 0.95);
+    rescalePoint2D(a, d, dx, dy);
+    rescalePoint2D(b, d, dx, dy);
+    rescalePoint2D(c, d, dx, dy);
 
     int Ymin = lround(min(min(a.y, b.y), c.y) + 0.5);
     int Ymax = lround(max(max(a.y, b.y), c.y) - 0.5);
 
-    for (int y=Ymin; y!=Ymax; y++) {
-        double xL_AB, xL_AC, xL_BC = INFTY;
-        double xR_AB, xR_AC, xR_BC = -INFTY;
+    double xL_AB, xL_AC, xL_BC, xR_AB, xR_AC, xR_BC;
+    for (int y=min(Ymin, Ymax); y!=max(Ymin, Ymax); y++) {
+        xL_AB = INFTY, xL_AC = INFTY, xL_BC = INFTY;
+        xR_AB = -INFTY, xR_AC = -INFTY, xR_BC = -INFTY;
         int xL, xR;
 
-        // Note: A=P, B=Q
-        if ((y - a.y) * (y - b.y) <= 0) {     // Test for intersection
-            double Xi = b.x + (a.x - b.x) * ((y - b.y) / (a.y - b.y));
+        Point2D P = a;
+        Point2D Q = b;
+
+        if ((y - P.y) * (y - Q.y) <= 0) {     // Test for intersection
+            double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
             xL_AB = Xi;
             xR_AB = Xi;
         }
-        if ((y - a.y) * (y - c.y) <= 0) {     // Test for intersection
-            double Xi = c.x + (a.x - c.x) * ((y - c.y) / (a.y - c.y));
-            xL_AC = Xi;
-            xR_AC = Xi;
-        }
-        if ((y - b.y) * (y - c.y) <= 0) {     // Test for intersection
-            double Xi = c.x + (b.x - c.x) * ((y - c.y) / (b.y - c.y));
+
+        P = b; Q = c;
+        if ((y - P.y) * (y - Q.y) <= 0) {     // Test for intersection
+            double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
             xL_BC = Xi;
             xR_BC = Xi;
         }
-        xL = lround(min(min(xL_AB, xL_AC), xL_BC)+0.5);
-        xR = lround(min(min(xR_AB, xR_AC), xR_BC)-0.5);
-        Point2D p1(xL, y);
-        Point2D p2(xR, y);
-        drawLine2D(img, p1, p2, color);
+
+        P = a; Q = c;
+        if ((y - P.y) * (y - Q.y) <= 0) {     // Test for intersection
+            double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
+            xL_AC = Xi;
+            xR_AC = Xi;
+        }
+            xL = lround(min(min(xL_AB, xL_AC), xL_BC)+0.5);
+            xR = lround(max(max(xR_AB, xR_AC), xR_BC)-0.5);
+            Point2D p1(xL, y);
+            Point2D p2(xR, y);
+//            draw_zbuf_line(zbuffer, img, p1, p2, color);
+            drawLine2D(img, p1, p2, color);
+
     }
 }
 

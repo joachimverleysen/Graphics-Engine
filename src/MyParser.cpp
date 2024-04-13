@@ -22,6 +22,7 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
     drawing.setBgColor(Color(bgColor[0], bgColor[1], bgColor[2]));
     drawing.setEye(Vector3D::point(eye[0], eye[1], eye[2]));
     drawing.setSize(size);
+    drawing.setType(genType);
 
     Solid3D s3d;
 

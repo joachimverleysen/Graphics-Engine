@@ -22,6 +22,14 @@ enum class drawingType {LSystem2D, Wireframe, LSystem3D};
 
 
 
+void doTransitions(Drawing3D &drawing) {
+    MyTools mt;
+    Figures3D figs = drawing.getFigures();
+    for (auto& fig : figs) {
+        mt.doTransitions(fig);
+    }
+    drawing.setFigures(figs);
+}
 
 Lines2D do_projection(Figures3D& figures, Vector3D& eye) {
     MyTools mt;
@@ -39,19 +47,118 @@ Lines2D do_projection(Figures3D& figures, Vector3D& eye) {
     return result;
 }
 
+/**
+@brief draws all the figures in the drawing, but with color fill instead of wireframe
+\n Makes use of z-buffer
+ */
+
+img::EasyImage draw_with_colorfill(Drawing3D& drawing) {
+    MyTools mt;
+    LineDrawer ld;
+    Vector3D eye = drawing.getEye();
+    Color bgColor = drawing.getBgColor();
+//    doTransitions(drawing);
+    Figures3D figs = drawing.getFigures();
+
+    for (auto& f : figs) {
+        mt.triangulateFigure(f);
+    }
+    Figures3D figs_copy = figs;
+    Lines2D lines = do_projection(figs_copy, eye);
+
+    int size = drawing.getSize();
+    Dimensions dim = ld.computeDims(lines, size);
+    int width = lround(dim.imgX);
+    int height = lround(dim.imgY);
+
+    img::EasyImage image(width, height);
+    ZBuffer zbuffer(dim.width, dim.height);
+    double d_ = 0.95*(dim.imgX/dim.xRange);
+    for (auto& f : figs) {
+        mt.convert_fig_to_eyesys(f, eye);
+        Color color = f.getColor();
+        for (auto& face : f.getFaces()) {
+            if (face.point_indexes.size() != 3) cerr<<"Error - Face is not a triangle\n";
+            Vector3D p1 = f.getPoints()[face.point_indexes[0]];
+            Vector3D p2 = f.getPoints()[face.point_indexes[1]];
+            Vector3D p3 = f.getPoints()[face.point_indexes[2]];
+            ld.draw_zbuf_triag(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color);
+        }
+    }
+    return image;
+}
+
+Drawing3D getSingleTriangleDrawing() {
+    Drawing3D result;
+    Vector3D a = Vector3D::point(1, 1, 1);
+    Vector3D b = Vector3D::point(1, -1, 1);
+    Vector3D c = Vector3D::point(-1, 1, 1);
+    vector<Vector3D> points;
+    points.push_back(a);
+    points.push_back(b);
+    points.push_back(c);
+    Figure testfig;
+    testfig.setColor(Color(1,0,0));
+    testfig.setPoints(points);
+    Face f({0,1,2});
+    vector<Face> faces; faces.push_back(f);
+    testfig.setFaces(faces);
+//    mt.convert_fig_to_eyesys(testfig, eye);
+    Figures3D figs; figs.push_back(testfig);
+    result.setFigures(figs);
+    Vector3D eye = Vector3D::point(100, 50, 75);
+    result.setEye(eye);
+    result.setSize(1000);
+    return result;
+}
+
 
 
 img::EasyImage generateImage(const ini::Configuration &conf) {
     img::EasyImage image;
     MyParser parser;
     LineDrawer ld;
+    MyTools mt;
     Drawing3D drawing;
     parser.drawing3D_parse(conf, drawing);
-    Figures3D figs = drawing.getFigures();
-    Vector3D eye = drawing.getEye();
-    Lines2D lines = do_projection(figs, eye);
-    Color bgcolor = drawing.getBgColor();
-    image = ld.draw2Dlines(lines, drawing.getSize(), bgcolor);
+    string type = drawing.getType();
+
+    if (type=="ZBufferedWireframe") {
+        Vector3D eye = drawing.getEye();
+        Color bgColor = drawing.getBgColor();
+        doTransitions(drawing);
+        Figures3D figs = drawing.getFigures();
+        Lines2D lines = do_projection(figs, eye);
+        image = ld.draw2Dlines(lines, drawing.getSize(), bgColor);
+    }
+    else if (type=="ZBuffering") {
+//        drawing = getSingleTriangleDrawing();
+        image = draw_with_colorfill(drawing);
+    }
+    else if (type=="Wireframe") {
+        Vector3D eye = drawing.getEye();
+        Color bgColor = drawing.getBgColor();
+        doTransitions(drawing);
+        Figures3D figs = drawing.getFigures();
+        Lines2D lines = do_projection(figs, eye);
+        image = ld.draw2Dlines(lines, drawing.getSize(), bgColor);
+    }
+    else if (type == "2DLSystem") {
+        MyLSystem2D ls = parser.lsys_parse(conf);
+        Color bgColor = ls.getBgColor();
+        vector<Point2D> points;
+        ls.computePoints(points);
+        ls.setPoints(points);
+        Lines2D lines = mt.getLineArray(points, ls.getColor());
+        image = ld.draw2Dlines(lines, drawing.getSize(), bgColor);
+    }
+
+
+
+
+
+
+//    image = ld.draw2Dlines(lines, drawing.getSize(), bgcolor);
     std::ofstream fout("../out.bmp", std::ios::binary);
     fout << image;
     fout.close();
