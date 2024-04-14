@@ -40,7 +40,7 @@ void LineDrawer::drawLine2D(img::EasyImage &image, Point2D &pt1, Point2D &pt2, C
             for (unsigned int j = Ya; j <= Yb; j++) {
                 if (i<0 || i>=width || j<0||j>=height) {
                     cerr<<"Out of range error\n";
-                    return;
+                    exit(1);
                 }
                 if (j == pt1.y) {
                     image(i, j).red = lineColor.red;
@@ -57,7 +57,7 @@ void LineDrawer::drawLine2D(img::EasyImage &image, Point2D &pt1, Point2D &pt2, C
             int Yi = lround(Ya + (m*i));
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
                 cerr<<"Out of range error\n";
-                return;
+                exit(1);
             }
             image(Xi, Yi).red = lineColor.red;
             image(Xi, Yi).green = lineColor.green;
@@ -71,7 +71,7 @@ void LineDrawer::drawLine2D(img::EasyImage &image, Point2D &pt1, Point2D &pt2, C
             int Yi = Ya + i;
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
                 cerr<<"Out of range error\n";
-                return;
+                exit(1);
             }
             image(Xi, Yi).red = lineColor.red;
             image(Xi, Yi).green = lineColor.green;
@@ -85,7 +85,7 @@ void LineDrawer::drawLine2D(img::EasyImage &image, Point2D &pt1, Point2D &pt2, C
             int Yi = Ya - i;
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
                 cerr<<"Out of range error\n";
-                return;
+                exit(1);
             }
             image(Xi, Yi).red = lineColor.red;
             image(Xi, Yi).green = lineColor.green;
@@ -220,7 +220,7 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
     int a;
     double z_val;
     a = max(image.get_width(), image.get_height());
-    if (Xa==Xb) {   // Vertical line
+    if (Xa==Xb && !triag_filling) {   // Vertical line
 //        a=y_distance;
         for(unsigned int i = Xa; i<=Xb; i++) {
             z_val = compute_1_on_z_WF(pt1, pt2, a - i, a);
@@ -247,7 +247,7 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
                 if (triag_filling) z_val = one_on_z(i, j, zbd);
                 if (i<0 || i>=width || j<0||j>=height) {
                     cerr<<"Out of range error\n";
-                    return;
+                    exit(1);
                 }
                 if (j == pt1.y) {
                     if (z_val>zbuffer[i][j]) continue;
@@ -271,7 +271,7 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
 
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
                 cerr<<"Out of range error\n";
-                return;
+                exit(1);
             }
             zbuffer[Xi][Yi] = z_val;
             image(Xi, Yi).red = color.red;
@@ -290,7 +290,7 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
             if (z_val>zbuffer[Xi][Yi]) continue;
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
                 cerr<<"Out of range error\n";
-                return;
+                exit(1);
             }
             zbuffer[Xi][Yi] = z_val;
             image(Xi, Yi).red = color.red;
@@ -309,7 +309,7 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
             if (z_val>zbuffer[Xi][Yi]) continue;
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
                 cerr<<"Out of range error\n";
-                return;
+                exit(1);
             }
             zbuffer[Xi][Yi] = z_val;
             image(Xi, Yi).red = color.red;
@@ -333,7 +333,20 @@ void compute_pxl_offset(double& dzdx, double& dzdy, Vector3D A, Vector3D B, Vect
     Vector3D w = Vector3D::vector(0,0,0);
     AB = B-A;
     AC = C-A;
+
+
     w = AB.cross_equals(AC);    // Vectorieel product (kruisproduct)
+
+
+/*
+    * Manual computation of vector W (result remains the same)
+
+    Vector3D w_ = Vector3D::vector(0,0,0);
+    w_.x = AB.y*AC.z-AC.y*AB.z;
+    w_.y = AC.x*AB.z-AB.x*AC.z;
+    w_.z = AB.x*AC.y-AC.x*AB.y;
+    w = w_;
+ */
     double k = (w.x*A.x + w.y*A.y + w.z*A.z);
     dzdx = w.x/(-d*k);
     dzdy = w.y/(-d*k);
@@ -345,16 +358,14 @@ ZBuffData compute_zbuff_data(Vector3D A, Vector3D B, Vector3D C, double d) {
     Point2D a = proj_point(A, 1);
     Point2D b = proj_point(B, 1);
     Point2D c = proj_point(C, 1);
-    double xG = (a.x+b.x+c.x)/3;
-    double yG = (a.y+b.y+c.y)/3;
-    double one_on_zG = (1/(3*A.z))+(1/(3*B.z))+(1/(3*C.z));
+    zbd.xG = (a.x+b.x+c.x)/3;
+    zbd.yG = (a.y+b.y+c.y)/3;
+    zbd.one_on_zG = (1/(3*A.z))+(1/(3*B.z))+(1/(3*C.z));
+
     double dzdx, dzdy;
     compute_pxl_offset(dzdx, dzdy, A, B, C, d);
-    zbd.xG = xG;
-    zbd.yG = yG;
     zbd.dzdx = dzdx;
     zbd.dzdy = dzdy;
-    zbd.one_on_zG = one_on_zG;
     return zbd;
 }
 
@@ -390,21 +401,21 @@ void LineDrawer::draw_zbuf_triag(ZBuffer &zbuffer, img::EasyImage &img,
         Point2D P = a;
         Point2D Q = b;
 
-        if ((y - P.y) * (y - Q.y) <= 0) {     // Test for intersection
+        if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {     // Test for intersection
             double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
             xL_AB = Xi;
             xR_AB = Xi;
         }
 
         P = b; Q = c;
-        if ((y - P.y) * (y - Q.y) <= 0) {     // Test for intersection
+        if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {     // Test for intersection
             double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
             xL_BC = Xi;
             xR_BC = Xi;
         }
 
         P = a; Q = c;
-        if ((y - P.y) * (y - Q.y) <= 0) {     // Test for intersection
+        if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {     // Test for intersection
             double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
             xL_AC = Xi;
             xR_AC = Xi;
