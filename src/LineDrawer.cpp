@@ -189,13 +189,13 @@ double compute_1_on_z_WF(const Point2D& p1, const Point2D& p2, double i, double 
 }
 
 double one_on_z(int x, int y, ZBuffData &zbd) {
-    return 1.0001*zbd.one_on_zG+(x-zbd.xG)*zbd.dzdx+(y-zbd.yG)*zbd.dzdy;
+    return 1.0001*zbd.one_on_zG + (x-zbd.xG)*zbd.dzdx + (y-zbd.yG)*zbd.dzdy;
 }
 
 
 void
 LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &color,
-                           bool triag_filling = false, ZBuffData zbd= ZBuffData()) {
+                           bool triag_filling, ZBuffData zbd= ZBuffData()) {
 
     unsigned int width = image.get_width();
     unsigned int height = image.get_height();
@@ -203,9 +203,7 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
     unsigned int Xa = lround(min(pt1.x, pt2.x));
     unsigned int Xb = lround(max(pt1.x, pt2.x));
     unsigned int Ya, Yb;
-    if (pt1.y != pt2.y) {
-        cout<<"??\n";
-    }
+
     if (Xa == pt1.x) {
         Ya = pt1.y;
         Yb = pt2.y;
@@ -220,13 +218,13 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
     int a;
     double z_val;
     a = max(image.get_width(), image.get_height());
+
     if (Xa==Xb && !triag_filling) {   // Vertical line
 //        a=y_distance;
         for(unsigned int i = Xa; i<=Xb; i++) {
             z_val = compute_1_on_z_WF(pt1, pt2, a - i, a);
 
             for (unsigned int j = lround(min(Ya, Yb)); j <= lround(max(Ya, Yb)); j++) {
-                if (triag_filling) z_val = one_on_z(i, j, zbd);
 
                 if (i == Xa) {
                         if (z_val>zbuffer[i][j]) continue;
@@ -245,7 +243,7 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
             for (unsigned int j = Ya; j <= Yb; j++) {
                 z_val = compute_1_on_z_WF(pt1, pt2, a - i, a);
                 if (triag_filling) z_val = one_on_z(i, j, zbd);
-                if (i<0 || i>=width || j<0||j>=height) {
+                if (i>=width || j>=height) {
                     cerr<<"Out of range error\n";
                     exit(1);
                 }
@@ -287,6 +285,8 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
             int Xi = lround(Xa + (i / m));
             int Yi = Ya + i;
             z_val = compute_1_on_z_WF(pt1, pt2, a - i, a);
+            if (triag_filling) z_val = one_on_z(Xi, Yi, zbd);
+
             if (z_val>zbuffer[Xi][Yi]) continue;
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
                 cerr<<"Out of range error\n";
@@ -305,6 +305,8 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
             int Xi = lround(Xa - (i / m));
             int Yi = Ya - i;
             z_val = compute_1_on_z_WF(pt1, pt2, a - i, a);
+            if (triag_filling) z_val = one_on_z(Xi, Yi, zbd);
+
 
             if (z_val>zbuffer[Xi][Yi]) continue;
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
@@ -353,19 +355,36 @@ void compute_pxl_offset(double& dzdx, double& dzdy, Vector3D A, Vector3D B, Vect
 
 }
 
-ZBuffData compute_zbuff_data(Vector3D A, Vector3D B, Vector3D C, double d) {
+ZBuffData compute_zbuff_data(const Vector3D A, const Vector3D B, const Vector3D C, const double d) {
     ZBuffData zbd;
-    Point2D a = proj_point(A, 1);
-    Point2D b = proj_point(B, 1);
-    Point2D c = proj_point(C, 1);
+    Point2D a = proj_point(A, d);
+    Point2D b = proj_point(B, d);
+    Point2D c = proj_point(C, d);
     zbd.xG = (a.x+b.x+c.x)/3;
     zbd.yG = (a.y+b.y+c.y)/3;
     zbd.one_on_zG = (1/(3*A.z))+(1/(3*B.z))+(1/(3*C.z));
 
     double dzdx, dzdy;
-    compute_pxl_offset(dzdx, dzdy, A, B, C, d);
-    zbd.dzdx = dzdx;
-    zbd.dzdy = dzdy;
+    Vector3D AB = Vector3D::vector(0,0,0);
+    Vector3D AC = Vector3D::vector(0,0,0);
+    Vector3D w = Vector3D::vector(0,0,0);
+    AB = B-A;
+    AC = C-A;
+
+    w = AB.cross_equals(AC);    // Vectorieel product (kruisproduct)
+/*
+    * Manual computation of vector W (same result)
+
+    Vector3D w_ = Vector3D::vector(0,0,0);
+    w_.x = AB.y*AC.z-AC.y*AB.z;
+    w_.y = AC.x*AB.z-AB.x*AC.z;
+    w_.z = AB.x*AC.y-AC.x*AB.y;
+    w = w_;
+ */
+    double k = (w.x*A.x + w.y*A.y + w.z*A.z);
+
+    zbd.dzdx = w.x/(-d*k);
+    zbd.dzdy = w.y/(-d*k);
     return zbd;
 }
 
@@ -389,8 +408,8 @@ void LineDrawer::draw_zbuf_triag(ZBuffer &zbuffer, img::EasyImage &img,
     rescalePoint2D(b, d, dx, dy);
     rescalePoint2D(c, d, dx, dy);
 
-    int Ymin = lround(min(min(a.y, b.y), c.y) + 0.5);
-    int Ymax = lround(max(max(a.y, b.y), c.y) - 0.5);
+    int Ymin = std::lround(min(min(a.y, b.y), c.y) + 0.5);
+    int Ymax = std::lround(max(max(a.y, b.y), c.y) - 0.5);
 
     double xL_AB, xL_AC, xL_BC, xR_AB, xR_AC, xR_BC;
     for (int y=min(Ymin, Ymax); y!=max(Ymin, Ymax); y++) {
@@ -424,6 +443,7 @@ void LineDrawer::draw_zbuf_triag(ZBuffer &zbuffer, img::EasyImage &img,
             xR = lround(max(max(xR_AB, xR_AC), xR_BC)-0.5);
             Point2D p1(xL, y);
             Point2D p2(xR, y);
+            if (p1.y != p2.y) return;
         ZBuffData zbd = compute_zbuff_data(A, B, C, d);
 
             draw_zbuf_line(zbuffer, img, p1, p2, color, true, zbd);

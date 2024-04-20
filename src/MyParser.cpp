@@ -84,9 +84,7 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
         if (figType == "Torus") {
             s3d.generateTorus(fig, r, R, n, m);
         };
-        if (figType == "Torus") {
-            s3d.generateTorus(fig, r, R, n, m);
-        };
+
         if (figType == "3DLSystem") {
             MyLSystem3D lsys(inputfile);
             lsys.generateFigure(fig);

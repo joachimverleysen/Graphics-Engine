@@ -36,7 +36,6 @@ Lines2D do_projection(Figures3D& figures, Vector3D& eye) {
     Lines2D result;
     Figures3D figs = figures;
     for (Figure &fig : figs) {
-        mt.doTransitions(fig);
         mt.convert_fig_to_eyesys(fig, eye);
         vector<Point2D> proj_points = mt.compute_proj_points(fig);
         fig.setProjPoints(proj_points);
@@ -57,23 +56,23 @@ img::EasyImage draw_with_colorfill(Drawing3D& drawing) {
     LineDrawer ld;
     Vector3D eye = drawing.getEye();
     Color bgColor = drawing.getBgColor();
-    doTransitions(drawing);
     Figures3D figs = drawing.getFigures();
 
     for (auto& f : figs) {
         mt.triangulateFigure(f);
     }
-    Figures3D figs_copy = figs;
-    Lines2D lines = do_projection(figs_copy, eye);
 
+    Lines2D lines = do_projection(figs, eye);
     int size = drawing.getSize();
-    Dimensions dim = ld.computeDims(lines, size);
-    int width = lround(dim.imgX);
-    int height = lround(dim.imgY);
 
-    img::EasyImage image(width, height);
+    Dimensions dim = ld.computeDims(lines, size);
+
+
+    img::EasyImage image(dim.width, dim.height);
+
+
+
     ZBuffer zbuffer(dim.width, dim.height);
-    double d_ = 0.95*(dim.imgX/dim.xRange);
     for (auto& f : figs) {
         mt.convert_fig_to_eyesys(f, eye);
         Color color = f.getColor();
@@ -132,7 +131,7 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
         image = ld.draw2Dlines(lines, drawing.getSize(), bgColor);
     }
     else if (type=="ZBuffering") {
-//        drawing = getSingleTriangleDrawing();
+        doTransitions(drawing);
         image = draw_with_colorfill(drawing);
     }
     else if (type=="Wireframe") {
