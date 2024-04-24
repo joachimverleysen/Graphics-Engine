@@ -37,9 +37,9 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
         int nrLines = conf[figname]["nrLines"].as_int_or_default(0);
         vector<double> color = conf[figname]["color"].as_double_tuple_or_die();
         double scale = conf[figname]["scale"].as_double_or_default(1.0);
-        int rotateX = conf[figname]["rotateX"].as_int_or_die();
-        int rotateY = conf[figname]["rotateY"].as_int_or_die();
-        int rotateZ = conf[figname]["rotateZ"].as_int_or_die();
+        double rotateX = conf[figname]["rotateX"].as_double_or_die();
+        double rotateY = conf[figname]["rotateY"].as_double_or_die();
+        double rotateZ = conf[figname]["rotateZ"].as_double_or_die();
         vector<double> center_ = conf[figname]["center"].as_double_tuple_or_die();
         Vector3D center = Vector3D::point(center_[0], center_[1], center_[2]);
         int n = conf[figname]["n"].as_int_or_default(0);

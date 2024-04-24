@@ -53,27 +53,27 @@ void Figure::setScale(double scale) {
     Figure::scale = scale;
 }
 
-int Figure::getRotateX() const {
+double Figure::getRotateX() const {
     return rotateX;
 }
 
-void Figure::setRotateX(int rotateX) {
+void Figure::setRotateX(double rotateX) {
     Figure::rotateX = rotateX;
 }
 
-int Figure::getRotateY() const {
+double Figure::getRotateY() const {
     return rotateY;
 }
 
-void Figure::setRotateY(int rotateY) {
+void Figure::setRotateY(double rotateY) {
     Figure::rotateY = rotateY;
 }
 
-int Figure::getRotateZ() const {
+double Figure::getRotateZ() const {
     return rotateZ;
 }
 
-void Figure::setRotateZ(int rotateZ) {
+void Figure::setRotateZ(double rotateZ) {
     Figure::rotateZ = rotateZ;
 }
 

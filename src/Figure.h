@@ -25,9 +25,9 @@ class Figure {
     Color color = Color(1,1,1);
     int size = 768;
     double scale=1.0;
-    int rotateX=0;
-    int rotateY=0;
-    int rotateZ=0;
+    double rotateX=0;
+    double rotateY=0;
+    double rotateZ=0;
     Vector3D center = Vector3D::point(0,0,0);
 public:
 
@@ -57,17 +57,17 @@ public:
 
     void setScale(double scale);
 
-    int getRotateX() const;
+    double getRotateX() const;
 
-    void setRotateX(int rotateX);
+    void setRotateX(double rotateX);
 
-    int getRotateY() const;
+    double getRotateY() const;
 
-    void setRotateY(int rotateY);
+    void setRotateY(double rotateY);
 
-    int getRotateZ() const;
+    double getRotateZ() const;
 
-    void setRotateZ(int rotateZ);
+    void setRotateZ(double rotateZ);
 
     const Vector3D &getCenter() const;
 

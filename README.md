@@ -39,18 +39,7 @@ X: Niet werkend of niet geïmplementeerd
 Geïmplementeerde vorm van texture mapping: ...
 
 ## Gekende problemen
-1. **Inaccurate z-buffering**
-
-    Maybe I make a rounding error somewhere? But I can't find it.
-
-    For example:
-      - z_buffering025.ini
-      - z_buffering073.ini
-
-
-2. **Wrong image dimensions**
-
-    - z_buffering079.ini - image is smaller than it should be
+Z-buffering werkt niet naar behoren. Ik heb o.a. op rounding errors gecheckt maar kan het probleem niet vinden.
 
 
 ## Niet-gequoteerde functionaliteit

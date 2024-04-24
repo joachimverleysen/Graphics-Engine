@@ -189,7 +189,7 @@ double compute_1_on_z_WF(const Point2D& p1, const Point2D& p2, double i, double 
 }
 
 double one_on_z(int x, int y, ZBuffData &zbd) {
-    return 1.0001*zbd.one_on_zG + (x-zbd.xG)*zbd.dzdx + (y-zbd.yG)*zbd.dzdy;
+    return (zbd.one_on_zG + (x-zbd.xG)*zbd.dzdx + (y-zbd.yG)*zbd.dzdy);
 }
 
 
@@ -329,6 +329,14 @@ Point2D proj_point(const Vector3D &A, const double d) {
 
 }
 
+Point2D proj_triag_point(const Vector3D &A, const double d, double dx, double dy) {
+    double Ax = (d*A.x/-A.z)+dx;
+    double Ay = (d*A.y/-A.z)+dy;
+    Point2D result(Ax, Ay);
+    return result;
+
+}
+
 void compute_pxl_offset(double& dzdx, double& dzdy, Vector3D A, Vector3D B, Vector3D C, double d) {
     Vector3D AB = Vector3D::vector(0,0,0);
     Vector3D AC = Vector3D::vector(0,0,0);
@@ -355,11 +363,17 @@ void compute_pxl_offset(double& dzdx, double& dzdy, Vector3D A, Vector3D B, Vect
 
 }
 
-ZBuffData compute_zbuff_data(const Vector3D A, const Vector3D B, const Vector3D C, const double d) {
+ZBuffData compute_zbuff_data(const Vector3D A, const Vector3D B, const Vector3D C, const double d, double dx, double dy) {
     ZBuffData zbd;
-    Point2D a = proj_point(A, d);
+
+/*    Point2D a = proj_point(A, d);
     Point2D b = proj_point(B, d);
-    Point2D c = proj_point(C, d);
+    Point2D c = proj_point(C, d);*/
+
+    Point2D a = proj_triag_point(A, d, dx, dy);
+    Point2D b = proj_triag_point(B, d, dx, dy);
+    Point2D c = proj_triag_point(C, d, dx, dy);
+
     zbd.xG = (a.x+b.x+c.x)/3;
     zbd.yG = (a.y+b.y+c.y)/3;
     zbd.one_on_zG = (1/(3*A.z))+(1/(3*B.z))+(1/(3*C.z));
@@ -382,7 +396,7 @@ ZBuffData compute_zbuff_data(const Vector3D A, const Vector3D B, const Vector3D 
     w = w_;
  */
     double k = (w.x*A.x + w.y*A.y + w.z*A.z);
-
+//    k = 404.2;
     zbd.dzdx = w.x/(-d*k);
     zbd.dzdy = w.y/(-d*k);
     return zbd;
@@ -400,19 +414,29 @@ void LineDrawer::draw_zbuf_triag(ZBuffer &zbuffer, img::EasyImage &img,
 
     double INFTY = std::numeric_limits<double>::infinity();
     MyTools mt;
-    Point2D a = proj_point(A, 1);
-    Point2D b = proj_point(B, 1);
-    Point2D c = proj_point(C, 1);
+    Point2D a = proj_triag_point(A, d, dx, dy);
+    Point2D b = proj_triag_point(B, d, dx, dy);
+    Point2D c = proj_triag_point(C, d, dx, dy);
+/*    Point2D a = proj_point(A, d);
+    Point2D b = proj_point(B, d);
+    Point2D c = proj_point(C, d);*/
 
+/*
     rescalePoint2D(a, d, dx, dy);
     rescalePoint2D(b, d, dx, dy);
-    rescalePoint2D(c, d, dx, dy);
+    rescalePoint2D(c, d, dx, dy);*/
 
+    ZBuffData zbd = compute_zbuff_data(A, B, C, d, dx, dy);
+
+  /*  draw_zbuf_line(zbuffer, img, a, b, color, false, zbd);
+    draw_zbuf_line(zbuffer, img, b, a, color, false, zbd);
+    draw_zbuf_line(zbuffer, img, a, c, color, false, zbd);
+*/
     int Ymin = std::lround(min(min(a.y, b.y), c.y) + 0.5);
     int Ymax = std::lround(max(max(a.y, b.y), c.y) - 0.5);
 
     double xL_AB, xL_AC, xL_BC, xR_AB, xR_AC, xR_BC;
-    for (int y=min(Ymin, Ymax); y!=max(Ymin, Ymax); y++) {
+    for (int y=min(Ymin, Ymax); y<=max(Ymin, Ymax); y++) {
         xL_AB = INFTY, xL_AC = INFTY, xL_BC = INFTY;
         xR_AB = -INFTY, xR_AC = -INFTY, xR_BC = -INFTY;
         int xL, xR;
@@ -443,12 +467,10 @@ void LineDrawer::draw_zbuf_triag(ZBuffer &zbuffer, img::EasyImage &img,
             xR = lround(max(max(xR_AB, xR_AC), xR_BC)-0.5);
             Point2D p1(xL, y);
             Point2D p2(xR, y);
-            if (p1.y != p2.y) return;
-        ZBuffData zbd = compute_zbuff_data(A, B, C, d);
+            if (p1.y != p2.y || (p1.x==0 && p2.x==0)) return;
 
             draw_zbuf_line(zbuffer, img, p1, p2, color, true, zbd);
 //            drawLine2D(img, p1, p2, color);
 
     }
 }
-
