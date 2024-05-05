@@ -163,6 +163,8 @@ img::EasyImage LineDrawer::draw2Dlines(Lines2D &lines, const int size, Color &bg
 
     cout<<"Drawing "<<lines.size()<<" "<<"lines. Check 'out.bmp'"<<endl;
     for (auto line : lines) {
+
+        //todo: shouldn't be zbuff, change to draw2Dline()
         draw_zbuf_line(zBuffer, myImage, line.p1, line.p2, line.color, false, ZBuffData());
     }
 
@@ -321,14 +323,6 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
     }
 }
 
-Point2D proj_point(const Vector3D &A, const double d) {
-    double Ax = d*A.x/-A.z;
-    double Ay = d*A.y/-A.z;
-    Point2D result(Ax, Ay);
-    return result;
-
-}
-
 Point2D proj_triag_point(const Vector3D &A, const double d, double dx, double dy) {
     double Ax = (d*A.x/-A.z)+dx;
     double Ay = (d*A.y/-A.z)+dy;
@@ -337,38 +331,9 @@ Point2D proj_triag_point(const Vector3D &A, const double d, double dx, double dy
 
 }
 
-void compute_pxl_offset(double& dzdx, double& dzdy, Vector3D A, Vector3D B, Vector3D C, double d) {
-    Vector3D AB = Vector3D::vector(0,0,0);
-    Vector3D AC = Vector3D::vector(0,0,0);
-    Vector3D w = Vector3D::vector(0,0,0);
-    AB = B-A;
-    AC = C-A;
-
-
-    w = AB.cross_equals(AC);    // Vectorieel product (kruisproduct)
-
-
-/*
-    * Manual computation of vector W (result remains the same)
-
-    Vector3D w_ = Vector3D::vector(0,0,0);
-    w_.x = AB.y*AC.z-AC.y*AB.z;
-    w_.y = AC.x*AB.z-AB.x*AC.z;
-    w_.z = AB.x*AC.y-AC.x*AB.y;
-    w = w_;
- */
-    double k = (w.x*A.x + w.y*A.y + w.z*A.z);
-    dzdx = w.x/(-d*k);
-    dzdy = w.y/(-d*k);
-
-}
-
 ZBuffData compute_zbuff_data(const Vector3D A, const Vector3D B, const Vector3D C, const double d, double dx, double dy) {
     ZBuffData zbd;
 
-/*    Point2D a = proj_point(A, d);
-    Point2D b = proj_point(B, d);
-    Point2D c = proj_point(C, d);*/
 
     Point2D a = proj_triag_point(A, d, dx, dy);
     Point2D b = proj_triag_point(B, d, dx, dy);
@@ -386,15 +351,7 @@ ZBuffData compute_zbuff_data(const Vector3D A, const Vector3D B, const Vector3D 
     AC = C-A;
 
     w = AB.cross_equals(AC);    // Vectorieel product (kruisproduct)
-/*
-    * Manual computation of vector W (same result)
 
-    Vector3D w_ = Vector3D::vector(0,0,0);
-    w_.x = AB.y*AC.z-AC.y*AB.z;
-    w_.y = AC.x*AB.z-AB.x*AC.z;
-    w_.z = AB.x*AC.y-AC.x*AB.y;
-    w = w_;
- */
     double k = (w.x*A.x + w.y*A.y + w.z*A.z);
 //    k = 404.2;
     zbd.dzdx = w.x/(-d*k);

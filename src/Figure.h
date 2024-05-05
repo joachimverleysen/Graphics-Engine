@@ -23,6 +23,7 @@ class Figure {
     vector<Vector3D> points;
     vector<Face> faces; // vlakken
     Color color = Color(1,1,1);
+    Color ammbientReflection;
     int size = 768;
     double scale=1.0;
     double rotateX=0;
