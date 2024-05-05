@@ -85,3 +85,11 @@ void Figure::setCenter(const Vector3D &center) {
     Figure::center = center;
 }
 
+const Color &Figure::getAmmbientReflection() const {
+    return ammbientReflection;
+}
+
+void Figure::setAmmbientReflection(const Color &ammbientReflection) {
+    Figure::ammbientReflection = ammbientReflection;
+}
+

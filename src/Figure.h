@@ -4,7 +4,7 @@
 
 #ifndef MYENGINE_FIGURE_H
 #define MYENGINE_FIGURE_H
-#include "LineDrawer.h"
+#include "MyTools.h"
 #include "../tools/vector3d.h"
 #include <vector>
 using std::vector;
@@ -73,6 +73,10 @@ public:
     const Vector3D &getCenter() const;
 
     void setCenter(const Vector3D &center);
+
+    const Color &getAmmbientReflection() const;
+
+    void setAmmbientReflection(const Color &ammbientReflection);
 
 
 };

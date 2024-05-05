@@ -69,3 +69,11 @@ Lines2D Drawing3D::compute2DLines() {
 Figure Drawing3D::do_fig_projection(const Figure &fig) {
     return Figure();
 }
+
+const Lights3D &Drawing3D::getLights() const {
+    return lights;
+}
+
+void Drawing3D::setLights(const Lights3D &lights) {
+    Drawing3D::lights = lights;
+}

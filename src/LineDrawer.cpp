@@ -362,12 +362,11 @@ ZBuffData compute_zbuff_data(const Vector3D A, const Vector3D B, const Vector3D 
 
 
 
-void LineDrawer::draw_zbuf_triag(ZBuffer &zbuffer, img::EasyImage &img,
-                                 const Vector3D &A,
-                                 const Vector3D &B,
+void LineDrawer::draw_zbuf_triag(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B,
                                  const Vector3D &C,
-                                 double d, double dx, double dy,
-                                 Color color) {
+                                 double d, double dx, double dy, Color color, Color ambienReflection,
+                                 double reflectionCoeff,
+                                 Lights3D &lights) {
 
     double INFTY = std::numeric_limits<double>::infinity();
     MyTools mt;

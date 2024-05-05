@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "Light.h"
 using namespace std;
 
 class Drawing3D {
@@ -20,6 +21,8 @@ Color bgColor=Color(0,0,0);
 int nrFigures=0;
 Vector3D eye=Vector3D::point(1,0,0);
 Figures3D figures;
+
+Lights3D lights;
 
 public:
     Drawing3D() {};
@@ -57,6 +60,10 @@ public:
     const Figures3D &getFigures() const;
 
     void setFigures(const Figures3D &figures);
+
+    const Lights3D &getLights() const;
+
+    void setLights(const Lights3D &lights);
 
 };
 

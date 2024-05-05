@@ -11,20 +11,15 @@
 #include "../tools/vector3d.h"
 #include <list>
 #include <cmath>
+#include "Light.h"
+#include "Color.h"
 
 
 
 using namespace std;
 
-class Color {
-public:
-    Color() : red(0), green(0), blue(0) {}
-    Color(double r, double g, double b) : red(r*255), green(g*255), blue(b*255) {};
-    // RRB values should be percentages (between 0 and 1)
-    double red;
-    double green;
-    double blue;
-};
+
+
 
 class Point2D {
 public:
@@ -67,6 +62,7 @@ struct ZBuffData {
 };
 
 
+
 class LineDrawer {
 public:
 
@@ -81,14 +77,9 @@ public:
     void draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &color,
                         bool triag_filling, ZBuffData zbd);
 
-    void draw_zbuf_triag(ZBuffer& zbuffer, img::EasyImage& img,
-                         Vector3D const& A,
-                         Vector3D const& B,
-                         Vector3D const& C,
-                         double d,
-                         double dx,
-                         double dy,
-                         Color color);
+    void draw_zbuf_triag(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B, const Vector3D &C,
+                         double d, double dx, double dy, Color color, Color ambienReflection, double reflectionCoeff,
+                         Lights3D &lights);
 
 
     Dimensions computeDims(Lines2D &lines, const int size);

@@ -81,7 +81,11 @@ img::EasyImage draw_with_colorfill(Drawing3D& drawing) {
             Vector3D p1 = f.getPoints()[face.point_indexes[0]];
             Vector3D p2 = f.getPoints()[face.point_indexes[1]];
             Vector3D p3 = f.getPoints()[face.point_indexes[2]];
-            ld.draw_zbuf_triag(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color);
+
+            Lights3D  lights = drawing.getLights();
+            Color ambientReflec = f.getAmmbientReflection();
+
+            ld.draw_zbuf_triag(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color, ambientReflec, 0, lights);
         }
     }
     return image;

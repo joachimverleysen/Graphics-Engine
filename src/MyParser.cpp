@@ -9,7 +9,7 @@
 #include "Solid3D.h"
 #include "MyLSystem2D.h"
 #include "MyLSystem3D.h"
-
+#include "Light.h"
 
 void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawing) {
     //GENERAL
@@ -18,11 +18,34 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
     vector<double> bgColor = conf["General"]["backgroundcolor"].as_double_tuple_or_die();
     int nrFigures = conf["General"]["nrFigures"].as_int_or_default(0);
     vector<double> eye = conf["General"]["eye"].as_double_tuple_or_default({0,0,0});
+    int nrLights = conf["General"]["nrLights"].as_int_or_default(0);
 
     drawing.setBgColor(Color(bgColor[0], bgColor[1], bgColor[2]));
     drawing.setEye(Vector3D::point(eye[0], eye[1], eye[2]));
     drawing.setSize(size);
     drawing.setType(genType);
+
+    // Lights
+
+    Lights3D lights;
+    for (int i=0; i!=nrLights; i++) {
+        Light light;
+
+        string lightname = "Light" + to_string(i);
+        vector<double> ambient = conf[lightname]["ambient"].as_double_tuple_or_default({0, 0, 0});
+//        vector<double> diffuse = conf[lightname]["diffuse"].as_double_tuple_or_default({0, 0, 0});
+//        vector<double> specular = conf[lightname]["specular"].as_double_tuple_or_default({0, 0, 0});
+
+        if (ambient != vector<double>{0,0,0}) {
+            Color ambientLight(ambient[0], ambient[1], ambient[2]);
+            light.ambientLight = ambientLight;
+        }
+
+
+        lights.push_back(light);
+    }
+    drawing.setLights(lights);
+
 
     Solid3D s3d;
 
@@ -35,7 +58,7 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
 
         int nrPoints = conf[figname]["nrPoints"].as_int_or_default(0);
         int nrLines = conf[figname]["nrLines"].as_int_or_default(0);
-        vector<double> color = conf[figname]["color"].as_double_tuple_or_die();
+        vector<double> color = conf[figname]["color"].as_double_tuple_or_default({0,0,0});
         double scale = conf[figname]["scale"].as_double_or_default(1.0);
         double rotateX = conf[figname]["rotateX"].as_double_or_die();
         double rotateY = conf[figname]["rotateY"].as_double_or_die();
@@ -49,6 +72,10 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
         int m = conf[figname]["m"].as_int_or_default(0);
         string inputfile = conf[figname]["inputfile"].as_string_or_default("");
 
+        // Light reflection
+        vector<double> ambientReflec_ = conf[figname]["ambientReflecton"].as_double_tuple_or_default({0, 0, 0});
+        Color ambientreflection = Color(ambientReflec_[0], ambientReflec_[1], ambientReflec_[2]);
+
         fig.setColor(Color(color[0], color[1], color[2]));
         fig.setSize(size);
         fig.setScale(scale);
@@ -56,6 +83,7 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
         fig.setRotateY(rotateY);
         fig.setRotateZ(rotateZ);
         fig.setCenter(center);
+        fig.setAmmbientReflection(ambientreflection);
 
         if (figType == "Cube") {
             s3d.generateCube(fig);

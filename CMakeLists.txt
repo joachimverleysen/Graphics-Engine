@@ -37,6 +37,10 @@ set(engine_sources
 		src/MyLSystem3D.h
 		src/ZBuffer.h
 		src/MyTools.cpp
+		src/Light.cpp
+		src/Light.h
+		src/Color.cpp
+		src/Color.h
 )
 
 ############################################################
