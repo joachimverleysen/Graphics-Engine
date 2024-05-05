@@ -39,8 +39,6 @@ set(engine_sources
 		src/MyTools.cpp
 		src/Light.cpp
 		src/Light.h
-		InfLight.cpp
-		InfLight.h
 )
 
 ############################################################
