@@ -10,10 +10,10 @@ class Color {
 public:
     Color() : red(0), green(0), blue(0) {}
     Color(double r, double g, double b) : red(r*255), green(g*255), blue(b*255) {};
-    // RRB values should be percentages (between 0 and 1)
     double red;
     double green;
     double blue;
+
 };
 
 

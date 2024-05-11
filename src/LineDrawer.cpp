@@ -362,11 +362,9 @@ ZBuffData compute_zbuff_data(const Vector3D A, const Vector3D B, const Vector3D 
 
 
 
-void LineDrawer::draw_zbuf_triag(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B,
+void LineDrawer::drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B,
                                  const Vector3D &C,
-                                 double d, double dx, double dy, Color color, Color ambienReflection,
-                                 double reflectionCoeff,
-                                 Lights3D &lights) {
+                                 double d, double dx, double dy, Color color) {
 
     double INFTY = std::numeric_limits<double>::infinity();
     MyTools mt;
@@ -426,6 +424,82 @@ void LineDrawer::draw_zbuf_triag(ZBuffer &zbuffer, img::EasyImage &img, const Ve
             if (p1.y != p2.y || (p1.x==0 && p2.x==0)) return;
 
             draw_zbuf_line(zbuffer, img, p1, p2, color, true, zbd);
+//            drawLine2D(img, p1, p2, color);
+
+    }
+}
+
+Color getAmbient(Lights3D& lights, Color ambientReflec) {
+    double redPCT=0;  // Percentage value
+    double bluePCT=0;  // Percentage value
+    double greenPCT=0;  // Percentage value
+        
+    for (auto l : lights) {
+        redPCT += (l.ambientLight.red/255);
+        greenPCT += (l.ambientLight.green/255);
+        bluePCT += (l.ambientLight.blue/255);
+    }
+    redPCT *= (ambientReflec.red/255);
+    greenPCT *= (ambientReflec.green/255);
+    bluePCT *= (ambientReflec.blue/255);
+
+    Color result(redPCT, greenPCT, bluePCT);
+    return result;
+}
+
+void LineDrawer::drawZbuffTriangLighted(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B,
+                                        const Vector3D &C, double d, double dx, double dy, Color color,
+                                        Color ambienReflection, double reflectionCoeff, Lights3D &lights) {
+
+    double INFTY = std::numeric_limits<double>::infinity();
+    MyTools mt;
+    Point2D a = proj_triag_point(A, d, dx, dy);
+    Point2D b = proj_triag_point(B, d, dx, dy);
+    Point2D c = proj_triag_point(C, d, dx, dy);
+
+
+    ZBuffData zbd = compute_zbuff_data(A, B, C, d, dx, dy);
+
+    int Ymin = std::lround(min(min(a.y, b.y), c.y) + 0.5);
+    int Ymax = std::lround(max(max(a.y, b.y), c.y) - 0.5);
+
+    double xL_AB, xL_AC, xL_BC, xR_AB, xR_AC, xR_BC;
+    for (int y=min(Ymin, Ymax); y<=max(Ymin, Ymax); y++) {
+        xL_AB = INFTY, xL_AC = INFTY, xL_BC = INFTY;
+        xR_AB = -INFTY, xR_AC = -INFTY, xR_BC = -INFTY;
+        int xL, xR;
+
+        Point2D P = a;
+        Point2D Q = b;
+
+        if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {     // Test for intersection
+            double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
+            xL_AB = Xi;
+            xR_AB = Xi;
+        }
+
+        P = b; Q = c;
+        if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {     // Test for intersection
+            double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
+            xL_BC = Xi;
+            xR_BC = Xi;
+        }
+
+        P = a; Q = c;
+        if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {     // Test for intersection
+            double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
+            xL_AC = Xi;
+            xR_AC = Xi;
+        }
+        xL = lround(min(min(xL_AB, xL_AC), xL_BC)+0.5);
+        xR = lround(max(max(xR_AB, xR_AC), xR_BC)-0.5);
+        Point2D p1(xL, y);
+        Point2D p2(xR, y);
+        if (p1.y != p2.y || (p1.x==0 && p2.x==0)) return;
+
+        Color resultingAmbient = getAmbient(lights, ambienReflection);
+
+        draw_zbuf_line(zbuffer, img, p1, p2, resultingAmbient, true, zbd);
 //            drawLine2D(img, p1, p2, color);
 
     }

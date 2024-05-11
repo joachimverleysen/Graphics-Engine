@@ -24,6 +24,7 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
     drawing.setEye(Vector3D::point(eye[0], eye[1], eye[2]));
     drawing.setSize(size);
     drawing.setType(genType);
+    drawing.setNrFigures(nrFigures);
 
     // Lights
 
@@ -32,7 +33,7 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
         Light light;
 
         string lightname = "Light" + to_string(i);
-        vector<double> ambient = conf[lightname]["ambient"].as_double_tuple_or_default({0, 0, 0});
+        vector<double> ambient = conf[lightname]["ambientLight"].as_double_tuple_or_default({0, 0, 0});
 //        vector<double> diffuse = conf[lightname]["diffuse"].as_double_tuple_or_default({0, 0, 0});
 //        vector<double> specular = conf[lightname]["specular"].as_double_tuple_or_default({0, 0, 0});
 
@@ -73,7 +74,7 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
         string inputfile = conf[figname]["inputfile"].as_string_or_default("");
 
         // Light reflection
-        vector<double> ambientReflec_ = conf[figname]["ambientReflecton"].as_double_tuple_or_default({0, 0, 0});
+        vector<double> ambientReflec_ = conf[figname]["ambientReflection"].as_double_tuple_or_default({0, 0, 0});
         Color ambientreflection = Color(ambientReflec_[0], ambientReflec_[1], ambientReflec_[2]);
 
         fig.setColor(Color(color[0], color[1], color[2]));

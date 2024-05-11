@@ -51,7 +51,7 @@ Lines2D do_projection(Figures3D& figures, Vector3D& eye) {
 \n Makes use of z-buffer
  */
 
-img::EasyImage draw_with_colorfill(Drawing3D& drawing) {
+img::EasyImage zbuffDrawing(Drawing3D &drawing, bool lighted) {
     MyTools mt;
     LineDrawer ld;
     Vector3D eye = drawing.getEye();
@@ -85,7 +85,13 @@ img::EasyImage draw_with_colorfill(Drawing3D& drawing) {
             Lights3D  lights = drawing.getLights();
             Color ambientReflec = f.getAmmbientReflection();
 
-            ld.draw_zbuf_triag(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color, ambientReflec, 0, lights);
+            if (lighted)
+                ld.drawZbuffTriangLighted(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color, ambientReflec, 0,
+                                          lights);
+            else
+                ld.drawZbuffTriang(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color);
+
+
         }
     }
     return image;
@@ -136,7 +142,7 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
     }
     else if (type=="ZBuffering") {
         doTransitions(drawing);
-        image = draw_with_colorfill(drawing);
+        image = zbuffDrawing(drawing, false);
     }
     else if (type=="Wireframe") {
         Vector3D eye = drawing.getEye();
@@ -154,6 +160,10 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
         ls.setPoints(points);
         Lines2D lines = mt.getLineArray(points, ls.getColor());
         image = ld.draw2Dlines(lines, drawing.getSize(), bgColor);
+    }
+    else if (type == "LightedZBuffering") {
+        doTransitions(drawing);
+        image = zbuffDrawing(drawing, true);
     }
 
 
