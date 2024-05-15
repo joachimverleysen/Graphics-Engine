@@ -57,6 +57,8 @@ void Solid3D::generateTetrahedron(Figure &fig) {
 
     };
 
+
+
     int face_indexes[4][3] = {
             {1, 2, 3},
             {2, 4, 3},

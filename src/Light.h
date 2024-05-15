@@ -7,11 +7,20 @@
 
 
 #include "Color.h"
+#include "../tools/vector3d.h"
 #include <list>
+#include <vector>
+
 
 class Light {
 public:
 Color ambientLight;
+Color diffuseLight;
+Vector3D direction;
+bool infinity = true;
+
+bool diffuse() const;
+
 };
 
 using Lights3D = std::list<Light>;

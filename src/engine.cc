@@ -73,20 +73,39 @@ img::EasyImage zbuffDrawing(Drawing3D &drawing, bool lighted) {
 
 
     ZBuffer zbuffer(dim.width, dim.height);
+
+    auto lights = drawing.getLights();
+
+    // Convert direction to eyesystem
+    for (Light& l : lights) {
+        Vector3D direction = Vector3D::point(0,0,0);
+        direction.x = l.direction.x;
+        direction.y = l.direction.y;
+        direction.z = l.direction.z;
+        mt.convert_point_to_eyesys(direction, eye);
+        l.direction.x = direction.x;
+        l.direction.y = direction.y;
+        l.direction.z = direction.z;
+    }
+
     for (auto& f : figs) {
         mt.convert_fig_to_eyesys(f, eye);
         Color color = f.getColor();
         for (auto& face : f.getFaces()) {
-            if (face.point_indexes.size() != 3) cerr<<"Error - Face is not a triangle\n";
+            if (face.point_indexes.size() != 3) {
+                cerr<<"Error - Face is not a triangle\n";
+                exit(1);
+            }
             Vector3D p1 = f.getPoints()[face.point_indexes[0]];
             Vector3D p2 = f.getPoints()[face.point_indexes[1]];
             Vector3D p3 = f.getPoints()[face.point_indexes[2]];
 
-            Lights3D  lights = drawing.getLights();
-            Color ambientReflec = f.getAmmbientReflection();
+            Color ambientReflec = f.getAmbientReflection();
+            Color diffuseReflec = f.getDiffuseReflection();
 
             if (lighted)
-                ld.drawZbuffTriangLighted(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color, ambientReflec, 0,
+                ld.drawZbuffTriangLighted(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color, ambientReflec,
+                                          diffuseReflec, 0,
                                           lights);
             else
                 ld.drawZbuffTriang(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color);
@@ -112,7 +131,7 @@ Drawing3D getSingleTriangleDrawing() {
     Face f({0,1,2});
     vector<Face> faces; faces.push_back(f);
     testfig.setFaces(faces);
-//    mt.convert_fig_to_eyesys(testfig, eye);
+//    mt.convert_point_to_eyesys(testfig, eye);
     Figures3D figs; figs.push_back(testfig);
     result.setFigures(figs);
     Vector3D eye = Vector3D::point(100, 50, 75);

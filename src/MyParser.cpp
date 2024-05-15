@@ -34,13 +34,26 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
 
         string lightname = "Light" + to_string(i);
         vector<double> ambient = conf[lightname]["ambientLight"].as_double_tuple_or_default({0, 0, 0});
-//        vector<double> diffuse = conf[lightname]["diffuse"].as_double_tuple_or_default({0, 0, 0});
+        vector<double> diffuse = conf[lightname]["diffuseLight"].as_double_tuple_or_default({0, 0, 0});
 //        vector<double> specular = conf[lightname]["specular"].as_double_tuple_or_default({0, 0, 0});
 
-        if (ambient != vector<double>{0,0,0}) {
-            Color ambientLight(ambient[0], ambient[1], ambient[2]);
-            light.ambientLight = ambientLight;
-        }
+        vector<double> direction_ = conf[lightname]["direction"].as_double_tuple_or_default({0, 0, 0});
+        Vector3D direction;
+        direction.x = direction_[0];
+        direction.y = direction_[1];
+        direction.z = direction_[2];
+        bool infty = conf[lightname]["infinity"].as_bool_or_default(false);
+
+
+        Color ambLight(ambient[0], ambient[1], ambient[2]);
+        Color diffLight(diffuse[0], diffuse[1], diffuse[2]);
+        light.ambientLight = ambLight;
+        light.diffuseLight = diffLight;
+
+        light.infinity = infty;
+        light.direction = direction;
+
+
 
 
         lights.push_back(light);
@@ -74,8 +87,10 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
         string inputfile = conf[figname]["inputfile"].as_string_or_default("");
 
         // Light reflection
-        vector<double> ambientReflec_ = conf[figname]["ambientReflection"].as_double_tuple_or_default({0, 0, 0});
-        Color ambientreflection = Color(ambientReflec_[0], ambientReflec_[1], ambientReflec_[2]);
+        vector<double> ambReflec = conf[figname]["ambientReflection"].as_double_tuple_or_default({0, 0, 0});
+        vector<double> diffReflec = conf[figname]["diffuseReflection"].as_double_tuple_or_default({0, 0, 0});
+        Color ambientreflection = Color(ambReflec[0], ambReflec[1], ambReflec[2]);
+        Color diffReflection = Color(diffReflec[0], diffReflec[1], diffReflec[2]);
 
         fig.setColor(Color(color[0], color[1], color[2]));
         fig.setSize(size);
@@ -84,7 +99,8 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
         fig.setRotateY(rotateY);
         fig.setRotateZ(rotateZ);
         fig.setCenter(center);
-        fig.setAmmbientReflection(ambientreflection);
+        fig.setAmbientReflection(ambientreflection);
+        fig.setDiffuseReflection(diffReflection);
 
         if (figType == "Cube") {
             s3d.generateCube(fig);

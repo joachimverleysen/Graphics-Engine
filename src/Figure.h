@@ -23,7 +23,8 @@ class Figure {
     vector<Vector3D> points;
     vector<Face> faces; // vlakken
     Color color = Color(1,1,1);
-    Color ammbientReflection;
+    Color ambientReflection;
+    Color diffuseReflection;
     int size = 768;
     double scale=1.0;
     double rotateX=0;
@@ -74,9 +75,13 @@ public:
 
     void setCenter(const Vector3D &center);
 
-    const Color &getAmmbientReflection() const;
+    const Color &getAmbientReflection() const;
 
-    void setAmmbientReflection(const Color &ammbientReflection);
+    void setAmbientReflection(const Color &ammbientReflection);
+
+    const Color &getDiffuseReflection() const;
+
+    void setDiffuseReflection(const Color &diffuseReflection);
 
 
 };

@@ -59,6 +59,7 @@ struct ZBuffData {
     double yG;
     double dzdx;
     double dzdy;
+    Vector3D w;
 };
 
 
@@ -77,9 +78,11 @@ public:
     void draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &color,
                         bool triag_filling, ZBuffData zbd);
 
-    void drawZbuffTriangLighted(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B, const Vector3D &C,
-                                double d, double dx, double dy, Color color, Color ambienReflection, double reflectionCoeff,
-                                Lights3D &lights);
+    void drawZbuffTriangLighted(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B,
+                                const Vector3D &C,
+                                double d, double dx, double dy, Color color, Color ambienReflection,
+                                Color diffuseReflection,
+                                double reflectionCoeff, Lights3D &lights);
 
 
     Dimensions computeDims(Lines2D &lines, const int size);

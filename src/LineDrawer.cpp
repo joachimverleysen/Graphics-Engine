@@ -118,8 +118,8 @@ Dimensions LineDrawer::computeDims(Lines2D &lines, const int size) {
         dims.Ymax = max(dims.Ymax, p.y);
         dims.Ymin = min(dims.Ymin, p.y);
     }
-    dims.xRange = dims.Xmax-dims.Xmin;
-    dims.yRange = dims.Ymax-dims.Ymin;
+    dims.xRange = abs(dims.Xmax-dims.Xmin);
+    dims.yRange = abs(dims.Ymax-dims.Ymin);
     dims.imgX = size * (dims.xRange/max(dims.xRange, dims.yRange));
     dims.imgY = size * (dims.yRange / max(dims.xRange, dims.yRange));
     dims.d = 0.95 * (dims.imgX/dims.xRange);    // scale factor
@@ -351,6 +351,7 @@ ZBuffData compute_zbuff_data(const Vector3D A, const Vector3D B, const Vector3D 
     AC = C-A;
 
     w = AB.cross_equals(AC);    // Vectorieel product (kruisproduct)
+    zbd.w = w;
 
     double k = (w.x*A.x + w.y*A.y + w.z*A.z);
 //    k = 404.2;
@@ -429,16 +430,15 @@ void LineDrawer::drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Ve
     }
 }
 
-Color getAmbient(Lights3D& lights, Color ambientReflec) {
+Color getAmbientComponent(Light l, Color ambientReflec) {
     double redPCT=0;  // Percentage value
     double bluePCT=0;  // Percentage value
     double greenPCT=0;  // Percentage value
-        
-    for (auto l : lights) {
-        redPCT += (l.ambientLight.red/255);
-        greenPCT += (l.ambientLight.green/255);
-        bluePCT += (l.ambientLight.blue/255);
-    }
+
+    redPCT += (l.ambientLight.red/255);
+    greenPCT += (l.ambientLight.green/255);
+    bluePCT += (l.ambientLight.blue/255);
+
     redPCT *= (ambientReflec.red/255);
     greenPCT *= (ambientReflec.green/255);
     bluePCT *= (ambientReflec.blue/255);
@@ -447,9 +447,49 @@ Color getAmbient(Lights3D& lights, Color ambientReflec) {
     return result;
 }
 
-void LineDrawer::drawZbuffTriangLighted(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B,
-                                        const Vector3D &C, double d, double dx, double dy, Color color,
-                                        Color ambienReflection, double reflectionCoeff, Lights3D &lights) {
+Color getDiffuseComponent(Vector3D w, Light li, Color diffReflec) {
+    MyTools mt;
+    Vector3D direction = li.direction;
+    double redPCT = 0;  // Percentage value
+    double bluePCT = 0;  // Percentage value
+    double greenPCT = 0;  // Percentage value
+
+    Vector3D Ld = li.direction;
+
+    Vector3D n = w;
+    n.normalise();
+    Vector3D l = Ld;
+    l.normalise();
+    l *= -1;
+
+    double scalprod = n.x * l.x + n.y * l.y + n.z * l.z;
+    if (scalprod<0) return Color(0,0,0);
+
+
+    redPCT += (li.diffuseLight.red / 255);
+    greenPCT += (li.diffuseLight.green / 255);
+    bluePCT += (li.diffuseLight.blue / 255);
+
+
+    redPCT *= (diffReflec.red/255) * scalprod;
+    greenPCT *= (diffReflec.green / 255) * scalprod;
+    bluePCT *= (diffReflec.blue / 255) * scalprod;
+
+    if (redPCT>1) redPCT=1;
+    if (greenPCT>1) greenPCT=1;
+    if (bluePCT>1) bluePCT=1;
+
+    Color result(redPCT, greenPCT, bluePCT);
+    return result;
+
+}
+
+
+    void LineDrawer::drawZbuffTriangLighted(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B,
+                                        const Vector3D &C,
+                                        double d, double dx, double dy, Color color, Color ambienReflection,
+                                        Color diffuseReflection,
+                                        double reflectionCoeff, Lights3D &lights) {
 
     double INFTY = std::numeric_limits<double>::infinity();
     MyTools mt;
@@ -497,9 +537,20 @@ void LineDrawer::drawZbuffTriangLighted(ZBuffer &zbuffer, img::EasyImage &img, c
         Point2D p2(xR, y);
         if (p1.y != p2.y || (p1.x==0 && p2.x==0)) return;
 
-        Color resultingAmbient = getAmbient(lights, ambienReflection);
+        Color resultingColor;
+        for (auto l : lights) {
+            Color ambientComponent = getAmbientComponent(l, ambienReflection);
+            Color diffuseComponent = getDiffuseComponent(zbd.w, l, diffuseReflection);
+            resultingColor = resultingColor+ambientComponent;
+            if (l.diffuse()) resultingColor = resultingColor+diffuseComponent;
 
-        draw_zbuf_line(zbuffer, img, p1, p2, resultingAmbient, true, zbd);
+        }
+        if (resultingColor.red>255) resultingColor.red = 255;
+        if (resultingColor.green>255) resultingColor.green = 255;
+        if (resultingColor.blue>255) resultingColor.blue = 255;
+
+
+        draw_zbuf_line(zbuffer, img, p1, p2, resultingColor, true, zbd);
 //            drawLine2D(img, p1, p2, color);
 
     }

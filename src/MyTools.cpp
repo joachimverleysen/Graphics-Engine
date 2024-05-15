@@ -62,6 +62,12 @@ void MyTools::convert_fig_to_eyesys(Figure &fig, const Vector3D &eye) {
     fig.setPoints(convertedPoints);
 }
 
+void MyTools::convert_point_to_eyesys(Vector3D& point, const Vector3D &eye) {
+    Matrix eyeTrans = eyePointTrans(eye);
+    Vector3D point_new = point*eyeTrans;
+    point = point_new;
+}
+
 void MyTools::point_to_eyesys(Vector3D& point, const Vector3D &eye) {
     Matrix eyeTrans = eyePointTrans(eye);
     point*=eyeTrans;

@@ -52,6 +52,8 @@ public:
     void triangulateFigure(Figure &fig);
 
     void point_to_eyesys(Vector3D &point, const Vector3D &eye);
+
+    void convert_point_to_eyesys(Vector3D &point, const Vector3D &eye);
 };
 
 
