@@ -346,9 +346,11 @@ ZBuffData compute_zbuff_data(const Vector3D A, const Vector3D B, const Vector3D 
     double dzdx, dzdy;
     Vector3D AB = Vector3D::vector(0,0,0);
     Vector3D AC = Vector3D::vector(0,0,0);
+    Vector3D BC = Vector3D::vector(0,0,0);
     Vector3D w = Vector3D::vector(0,0,0);
     AB = B-A;
     AC = C-A;
+    BC = C-B;
 
     w = AB.cross_equals(AC);    // Vectorieel product (kruisproduct)
     zbd.w = w;
@@ -450,11 +452,12 @@ Color getAmbientComponent(Light l, Color ambientReflec) {
 Color getDiffuseComponent(Vector3D w, Light li, Color diffReflec) {
     MyTools mt;
     Vector3D direction = li.direction;
+    direction.normalise();
     double redPCT = 0;  // Percentage value
     double bluePCT = 0;  // Percentage value
     double greenPCT = 0;  // Percentage value
 
-    Vector3D Ld = li.direction;
+    Vector3D Ld = direction;
 
     Vector3D n = w;
     n.normalise();
