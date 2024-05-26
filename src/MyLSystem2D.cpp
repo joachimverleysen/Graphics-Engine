@@ -47,31 +47,45 @@ void MyLSystem2D::setStartingAngle(double startingAngle) {
     starting_angle = startingAngle;
 }
 
+typedef pair<Point2D, double> State;
 
 
 
 void MyLSystem2D::_str2Points(const string &str, vector<Point2D> &points) {
     double angle=starting_angle;
     Point2D currPos(0, 0);
+    State currState(currPos, starting_angle);
+    vector<State> stack;
 
     // Converts the initiator string to a vector of _points
     for (char c : str) {
             if (c == '+') {
-                angle += Angle;
+                currState.second += Angle;
                 continue;
             }
             else if (c == '-') {
-                angle -= Angle;
+                currState.second -= Angle;
                 continue;
             }
-            else if (alphabet.find(c) == alphabet.end()) cerr<<"Undefined char"<<endl;
+            else if (c == '(') {
+                stack.push_back(currState);
+            }
+            else if (c == ')') {
+                currState = stack.back();
+                stack.pop_back();
+            }
+            else if (alphabet.find(c) == alphabet.end()) {
+                cerr<<"Undefined char"<<endl;
+            }
             else  {
-                Point2D nextPt = _computeNextPoint(currPos, angle);
+                Point2D nextPt = _computeNextPoint(currState.first, currState.second);
                 if (drawFunction[c] == 1) {
-                    points.emplace_back(currPos);
+                    points.emplace_back(currState.first);
                     points.emplace_back(nextPt);
                 }
-                currPos = nextPt;
+                currState.first = nextPt;
+                currState.first = currState.first;
+
             }
     }
 
@@ -85,38 +99,14 @@ Point2D MyLSystem2D::_computeNextPoint(Point2D &p1, double angle) {
     return result;
 }
 
-void MyLSystem2D::recursiveReplace(string &str, int iters, Point2D &currPos, double angl, vector<Point2D> &_points) {
-    for (char c : str) {
-        if (iters == 0) {
-            if (c == '+') {
-            angl += Angle;
-            }
-            else if (c == '-') {
-                angl-= Angle;
-            }
-            else if (alphabet.find(c) == alphabet.end()) cerr<<"Undefined char"<<endl;
-            else {
-                Point2D nextPos = _computeNextPoint(currPos, angl);
-                if (drawFunction[c]==1) {
-                    _points.push_back(currPos);
-                }
-                _points.push_back(nextPos);
-                currPos = nextPos;
-            }
-        }
-        else {
-            recursiveReplace(rules[c], iters - 1, currPos, angl, _points);
-        }
-}
-
-
-}
 
 void MyLSystem2D::applyReplacement(string &s) {
     string str_new;
     for (char c : s) {
         if (c == '+') str_new+='+';
         else if (c == '-') str_new+='-';
+        else if (c == '(') str_new+='(';
+        else if (c == ')') str_new+=')';
         else if (alphabet.find(c) == alphabet.end()) cerr<<"Undefined char"<<endl;
         else str_new += rules[c];
     }

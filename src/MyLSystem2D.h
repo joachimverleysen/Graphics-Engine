@@ -60,8 +60,6 @@ public:
 
     void applyReplacement(string &s);
 
-    void recursiveReplace(string &s, int iterations, Point2D &currPos, double angl, vector<Point2D> &_points);
-
     vector<Point2D> const getPoints();
 
     const string &getInputfile() const;
