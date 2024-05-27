@@ -30,8 +30,23 @@ class Figure {
     double rotateX=0;
     double rotateY=0;
     double rotateZ=0;
-    Vector3D center = Vector3D::point(0,0,0);
+
+    int nrIterations;
+    double fractalscale;
 public:
+    double getFractalscale() const;
+
+    void setFractalscale(double fractalscale);
+
+private:
+
+    Vector3D center = Vector3D::point(0,0,0);
+
+
+public:
+    int getNrIterations() const;
+
+    void setNrIterations(int nrIterations);
 
     vector<Point2D> proj_points;
 

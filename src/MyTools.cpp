@@ -202,3 +202,15 @@ void MyTools::triangulateFigure(Figure &fig) {
     }
     fig.setFaces(result_faces);
 }
+
+void MyTools::applyTransformation(Figure &fig, Matrix &mtx) {
+    auto points = fig.getPoints();
+    vector<Vector3D> points_new;
+    for (auto p : points) {
+        Vector3D point_new = Vector3D::point(p.x, p.y, p.z);
+        point_new *= mtx;
+        points_new.push_back(point_new);
+    }
+    fig.setPoints(points_new);
+
+}

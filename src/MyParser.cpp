@@ -85,6 +85,9 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
         double R = conf[figname]["R"].as_double_or_default(0);
         int m = conf[figname]["m"].as_int_or_default(0);
         string inputfile = conf[figname]["inputfile"].as_string_or_default("");
+        int nrIterations = conf[figname]["nrIterations"].as_int_or_default(0);
+        double fractalscale = conf[figname]["fractalScale"].as_double_or_default(0);
+
 
         // Light reflection
         vector<double> ambReflec = conf[figname]["ambientReflection"].as_double_tuple_or_default({0, 0, 0});
@@ -101,39 +104,44 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
         fig.setCenter(center);
         fig.setAmbientReflection(ambientreflection);
         fig.setDiffuseReflection(diffReflection);
+        fig.setNrIterations(nrIterations);
+        fig.setFractalscale(fractalscale);
 
-        if (figType == "Cube") {
+        if (figType == "Cube" || figType == "FractalCube") {
             s3d.generateCube(fig);
-        };
-        if (figType == "Tetrahedron") {
+        }
+        if (figType == "Tetrahedron" || figType == "FractalTetrahedron") {
             s3d.generateTetrahedron(fig);
-        };
-        if (figType == "Octahedron") {
+        }
+        if (figType == "Octahedron" || figType == "FractalOctahedron") {
             s3d.generateOctahedron(fig);
-        };
-        if (figType == "Icosahedron") {
+        }
+        if (figType == "Icosahedron" || figType == "FractalIcosahedron") {
             s3d.generateIcosahedron(fig);
-        };
-        if (figType == "Dodecahedron") {
+        }
+        if (figType == "Dodecahedron" || figType == "FractalDodecahedron") {
             s3d.generateDodecahedron(fig);
-        };
-        if (figType == "Sphere") {
+        }
+        if (figType == "Sphere" || figType == "FractalSphere") {
             s3d.generateSphere(fig, n);
-        };
-        if (figType == "Cone") {
+        }
+        if (figType == "Cone" || figType == "FractalCone") {
             s3d.generateCone(fig, n, height);
-        };
-        if (figType == "Cylinder") {
+        }
+        if (figType == "Cylinder" || figType == "FractalCylinder") {
             s3d.generateCylinder(fig, n, height);
-        };
-        if (figType == "Torus") {
+        }
+        if (figType == "Torus" || figType == "FractalTorus") {
             s3d.generateTorus(fig, r, R, n, m);
-        };
+        }
 
         if (figType == "3DLSystem") {
             MyLSystem3D lsys(inputfile);
             lsys.generateFigure(fig);
         };
+
+
+        // 2D linedrawings:
 
         //POINTS
         vector<Vector3D> points;
@@ -157,8 +165,13 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
             fig.setFaces(faces);
             fig.setPoints(points);
         }
+        Figures3D fractal;
+        s3d.generateFractal(fig, fractal, nrIterations, fractalscale);
 
-        drawing.addFigure(fig);
+        for (auto& f : fractal) {
+            drawing.addFigure(f);
+        }
+        if (fractal.empty()) drawing.addFigure(fig);
     }
 }
 

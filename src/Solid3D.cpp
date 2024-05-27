@@ -236,7 +236,7 @@ void Solid3D::generateDodecahedron(Figure &fig) {
 
     int face_indexes[12][5] = {
             {1, 2, 3, 4, 5},
-            {1, 6, 7},
+            {1, 6, 7, 8, 2},
             {2, 8, 9, 10, 3},
             {3, 10, 11, 12, 4},
             {4, 12, 13, 14, 5},
@@ -436,4 +436,31 @@ void Solid3D::generateTorus(Figure &fig, const double r, const double R, const i
 
     fig.setFaces(faces);
     fig.setPoints(points);
+}
+
+void Solid3D::generateFractal(Figure &fig, Figures3D &fractal, const int nr_iterations, const double scale) {
+    MyTools mt;
+
+    int count = nr_iterations;
+    fractal.push_back(fig);
+    while (count != 0) {
+        auto prev_fractal = fractal;
+        fractal.clear();
+        for (auto fig : prev_fractal) {
+            Figure original = fig;
+            Matrix scale_mtx = mt.get_scale_mtx(1/scale);
+            for (int i=0; i!=original.getPoints().size(); i++){
+                Figure copy = fig;
+                mt.applyTransformation(copy, scale_mtx);
+                Vector3D point_new = copy.getPoints()[i];
+                Vector3D trans = original.getPoints()[i] - point_new    ;
+                auto trans_mtx = mt.get_translate_mtx(trans);
+                mt.applyTransformation(copy, trans_mtx);
+                fractal.push_back(copy);
+            }
+        }
+        count --;
+
+    }
+
 }

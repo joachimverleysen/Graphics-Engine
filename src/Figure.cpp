@@ -101,3 +101,19 @@ void Figure::setDiffuseReflection(const Color &diffuseReflection) {
     Figure::diffuseReflection = diffuseReflection;
 }
 
+int Figure::getNrIterations() const {
+    return nrIterations;
+}
+
+void Figure::setNrIterations(int nrIterations) {
+    Figure::nrIterations = nrIterations;
+}
+
+double Figure::getFractalscale() const {
+    return fractalscale;
+}
+
+void Figure::setFractalscale(double fractalscale) {
+    Figure::fractalscale = fractalscale;
+}
+

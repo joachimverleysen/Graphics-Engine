@@ -37,6 +37,8 @@ public:
 
     Matrix get_rot_y(const double angle_deg);
 
+    void applyTransformation (Figure &fig, Matrix &mtx);
+
     Lines2D computeLines(Figure &fig);
 
     void convert_fig_to_eyesys(Figure &fig, const Vector3D &eye);
