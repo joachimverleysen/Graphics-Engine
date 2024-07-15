@@ -217,16 +217,23 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
     int x_distance = Xa-Xb; x_distance = abs(x_distance);
     int y_distance = Ya-Yb; y_distance = abs(y_distance);
 
+
     int a;
     double z_val;
 
     if (Xa==Xb && !triag_filling) {   // Vertical line
         a=y_distance;
         for(unsigned int i = Xa; i<=Xb; i++) {
-//            z_val = compute_1_on_z_WF(pt1, pt2, i-Xa, a);
-
+            z_val = compute_1_on_z_WF(pt1, pt2, a-i+Xa, a);
+            if (pt2.y < pt1.y) {
+                z_val = compute_1_on_z_WF(pt2, pt1, a-i+Xa, a);
+            }
             for (unsigned int j = min(Ya, Yb); j <= max(Ya, Yb); j++) {
-                z_val = compute_1_on_z_WF(pt1, pt2, a - j+Ya, a);
+                z_val = compute_1_on_z_WF(pt1, pt2, a-j+min(Ya, Yb), a);
+                if (pt2.y < pt1.y) {
+                    z_val = compute_1_on_z_WF(pt2, pt1, a-j+min(Ya, Yb), a);
+                }
+
 
                 if (i == Xa) {
                         if (z_val>zbuffer[i][j]) continue;
@@ -242,10 +249,12 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
         a=x_distance;
 
         for(unsigned int i = Xa; i <= Xb ; i++) {
-            z_val = compute_1_on_z_WF(pt1, pt2, i-Xa, a);
+            z_val = compute_1_on_z_WF(pt1, pt2, a-i+Xa, a);
+            if (pt2.x < pt1.x) {
+                z_val = compute_1_on_z_WF(pt2, pt1, a-i+Xa, a);
+            }
+            for (unsigned int j = min(Ya, Yb); j <= max(Ya, Yb); j++) {
 
-            for (unsigned int j = Ya; j <= Yb; j++) {
-//                z_val = compute_1_on_z_WF(pt1, pt2, i-Xa, a);
                 if (triag_filling) z_val = one_on_z(i, j, zbd);
                 if (i>=width || j>=height) {
                     cerr<<"Out of range error\n";
@@ -268,7 +277,10 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
 
             int Xi = Xa + i;
             int Yi = lround(Ya + (m*i));
-            z_val = compute_1_on_z_WF(pt1, pt2, i, a);
+            z_val = compute_1_on_z_WF(pt1, pt2, a-i, a);
+            if (pt2.x < pt1.x) {
+                z_val = compute_1_on_z_WF(pt2, pt1, a-i, a);
+            }
             if (z_val>zbuffer[Xi][Yi]) continue;
 
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
@@ -288,7 +300,10 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
 
             int Xi = lround(Xa + (i / m));
             int Yi = Ya + i;
-            z_val = compute_1_on_z_WF(pt1, pt2, i, a);
+            z_val = compute_1_on_z_WF(pt1, pt2, a-i, a);
+            if (pt2.y < pt1.y) {
+                z_val = compute_1_on_z_WF(pt2, pt1, a-i, a);
+            }
             if (triag_filling) z_val = one_on_z(Xi, Yi, zbd);
 
             if (z_val>zbuffer[Xi][Yi]) continue;
@@ -308,7 +323,12 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
         for(unsigned int i = 0; i <= y_distance; i++) {
             int Xi = lround(Xa - (i / m));
             int Yi = Ya - i;
-            z_val = compute_1_on_z_WF(pt1, pt2, i, a);
+
+            z_val = compute_1_on_z_WF(pt1, pt2, a-i, a);
+            if (pt2.y < pt1.y) {
+//                z_val = compute_1_on_z_WF(pt2, pt1, a-i, a);
+            }
+
             if (triag_filling) z_val = one_on_z(Xi, Yi, zbd);
 
 
