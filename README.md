@@ -19,9 +19,9 @@ X: Niet werkend of niet geïmplementeerd
 |   | Bol                       | V      |
 |   | Torus                     | V      |
 |   | 3D L-systemen             |        |
-| 4 | Z-buffering (lijnen)      | V      |
+| 4 | Z-buffering (lijnen)      | -      |
 | 5 | Triangulatie              | V      |
-|   | Z-buffering (driehoeken)  | V      |
+|   | Z-buffering (driehoeken)  | -      |
 | 6 | 3D fractalen              | V      |
 |   | BuckyBall                 |        |
 |   | Mengerspons               |        |
@@ -39,6 +39,10 @@ X: Niet werkend of niet geïmplementeerd
 Geïmplementeerde vorm van texture mapping: ...
 
 ## Gekende problemen
+zbuff_wireframes > z_buffered_wireframes118.ini
+
+linedrawer.cpp > draw_zbuf_line()
+    Is de keuze van a en i juist?
 
 ## Niet-gequoteerde functionaliteit
 ...
