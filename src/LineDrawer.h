@@ -44,7 +44,9 @@ public:
 using Lines2D = std::list<Line2D>;
 
 struct Dimensions {
-    double Xmin=0, Ymin=0, Xmax=0, Ymax=0;
+    double infty = std::numeric_limits<double>::infinity();
+
+    double Xmin=infty, Ymin=infty, Xmax=-infty, Ymax=-infty;
     double xRange, yRange;
     double imgX, imgY;
     double d;
@@ -69,8 +71,6 @@ public:
 
     void setBackground(img::EasyImage &image, Color &bgColor);
 
-    void drawLine2D(img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &lineColor);
-
     vector<Point2D> getPointArray (const Lines2D &lines);
 
     img::EasyImage draw2Dlines(Lines2D &lines, const int size, Color &bgColor);;
@@ -91,6 +91,7 @@ public:
 
     void drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B, const Vector3D &C,
                          double d, double dx, double dy, Color color);
+
 };
 
 

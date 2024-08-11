@@ -6,95 +6,6 @@
 #include "MyTools.h"
 #include <fstream>
 
-void LineDrawer::drawLine2D(img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &lineColor) {
-    unsigned int width = image.get_width();
-    unsigned int height = image.get_height();
-    double m = static_cast<double>((pt1.y - pt2.y) / static_cast<double>(pt1.x - pt2.x));
-    unsigned int Xa = min(pt1.x, pt2.x);
-    unsigned int Xb = max(pt1.x, pt2.x);
-    unsigned int Ya, Yb;
-    if (Xa == pt1.x) {
-        Ya = pt1.y;
-        Yb = pt2.y;
-    }
-    else {
-        Yb = pt1.y;
-        Ya = pt2.y;
-    }
-     int x_distance = Xa-Xb; x_distance = abs(x_distance);
-     int y_distance = Ya-Yb; y_distance = abs(y_distance);
-
-    if (Xa==Xb) {   // Vertical line
-        for(unsigned int i = Xa; i<=Xb; i++) {
-            for (unsigned int j = lround(min(Ya, Yb)); j <= lround(max(Ya, Yb)); j++) {
-                if (i == Xa) {
-                    image(i, j).red = lineColor.red;
-                    image(i, j).green = lineColor.green;
-                    image(i, j).blue = lineColor.blue;
-                }
-            }
-        }
-    }
-    else if (pt1.y == pt2.y) {   // Horizontal line
-        for(unsigned int i = Xa; i <= Xb ; i++) {
-            for (unsigned int j = Ya; j <= Yb; j++) {
-                if (i<0 || i>=width || j<0||j>=height) {
-                    cerr<<"Out of range error\n";
-                    exit(1);
-                }
-                if (j == pt1.y) {
-                    image(i, j).red = lineColor.red;
-                    image(i, j).green = lineColor.green;
-                    image(i, j).blue = lineColor.blue;
-                }
-            }
-        }
-    }
-    else if (m>0 && m<=1 || m >=-1 && m<0) {     // Cursus: geval 1 en 2
-        for(unsigned int i = 0; i <= Xb - Xa; i++) {
-
-            int Xi = Xa + i;
-            int Yi = lround(Ya + (m*i));
-            if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
-                cerr<<"Out of range error\n";
-                exit(1);
-            }
-            image(Xi, Yi).red = lineColor.red;
-            image(Xi, Yi).green = lineColor.green;
-            image(Xi, Yi).blue = lineColor.blue;
-        }
-    }
-
-    else if (m > 1) {     // Cursus: geval 3
-        for(unsigned int i = 0; i <= y_distance; i++) {
-            int Xi = lround(Xa + (i / m));
-            int Yi = Ya + i;
-            if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
-                cerr<<"Out of range error\n";
-                exit(1);
-            }
-            image(Xi, Yi).red = lineColor.red;
-            image(Xi, Yi).green = lineColor.green;
-            image(Xi, Yi).blue = lineColor.blue;
-        }
-    }
-
-    else if (m < -1) {     // Cursus: geval 4
-        for(unsigned int i = 0; i <= y_distance; i++) {
-            int Xi = lround(Xa - (i / m));
-            int Yi = Ya - i;
-            if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
-                cerr<<"Out of range error\n";
-                exit(1);
-            }
-            image(Xi, Yi).red = lineColor.red;
-            image(Xi, Yi).green = lineColor.green;
-            image(Xi, Yi).blue = lineColor.blue;
-        }
-    }
-
-}
-
 vector<Point2D> LineDrawer::getPointArray(const Lines2D &lines) {
     vector<Point2D> result;
     for (auto line : lines) {
@@ -128,8 +39,8 @@ Dimensions LineDrawer::computeDims(Lines2D &lines, const int size) {
     dims.DCy = dims.d* ((dims.Ymin + dims.Ymax)/2);
     dims.dx = (dims.imgX/2) - dims.DCx;
     dims.dy = (dims.imgY/2) - dims.DCy;
-    dims.width = lround(dims.imgX);
-    dims.height = lround(dims.imgY);
+    dims.width = round(dims.imgX);
+    dims.height = round(dims.imgY);
     return dims;
 }
 
@@ -141,8 +52,8 @@ void LineDrawer::rescalePoint2D(Point2D& p, double d, double dx, double dy) {
     p.x += dx;
     p.y += dy;
     // afronden
-    p.x = lround(p.x);
-    p.y = lround(p.y);
+  /*  p.x = round(p.x);
+    p.y = round(p.y);*/
 
 }
 
@@ -164,7 +75,6 @@ img::EasyImage LineDrawer::draw2Dlines(Lines2D &lines, const int size, Color &bg
     cout<<"Drawing "<<lines.size()<<" "<<"lines. Check 'out.bmp'"<<endl;
     for (auto line : lines) {
 
-        //todo: shouldn't be zbuff, change to draw2Dline()
         draw_zbuf_line(zBuffer, myImage, line.p1, line.p2, line.color, false, ZBuffData());
     }
 
@@ -183,10 +93,16 @@ void LineDrawer::setBackground(img::EasyImage &image, Color &color) {
     }
 }
 
-double compute_1_on_z_WF(const Point2D& p1, const Point2D& p2, double i, double a) {
+double compute_1_on_z_WF(const double& z0, const double& z1, double i, double a) {
     double result;
-    double p = i/a;
-    result = (p/p1.z_val) + ((1-p)/p2.z_val);
+
+    double p;
+    if (a==0) {
+        a=1;
+    }
+
+    p = i/a;
+    result = (p / z0) + ((1 - p) / z1);
     return result;
 }
 
@@ -194,98 +110,146 @@ double one_on_z(int x, int y, ZBuffData &zbd) {
     return (zbd.one_on_zG + (x-zbd.xG)*zbd.dzdx + (y-zbd.yG)*zbd.dzdy);
 }
 
-
 void
 LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &color,
                            bool triag_filling, ZBuffData zbd= ZBuffData()) {
 
+    // NOTE: The point (0,0) is the left bottom corner
+
+/*    pt1.x = round(pt1.x);
+    pt1.y = round(pt1.y);
+    pt2.x = round(pt2.x);
+    pt2.y = round(pt2.y);*/
+
+    unsigned int x0, x1, y0, y1;
+
+    x0 = round(pt1.x);
+    x1 = round(pt2.x);
+    y0 = round(pt1.y);
+    y1 = round(pt2.y);
+    double z0, z1;
+    z0 = pt1.z_val;
+    z1 = pt2.z_val;
+
     unsigned int width = image.get_width();
     unsigned int height = image.get_height();
-    double m = static_cast<double>((pt1.y - pt2.y) / static_cast<double>(pt1.x - pt2.x));
-    unsigned int Xa = lround(min(pt1.x, pt2.x));
-    unsigned int Xb = lround(max(pt1.x, pt2.x));
-    unsigned int Ya, Yb;
+    int Xa = round(min(pt1.x, pt2.x));
+    int Xb = lround(max(pt1.x, pt2.x));
+    int Ya, Yb;
 
-    if (Xa == pt1.x) {
-        Ya = pt1.y;
-        Yb = pt2.y;
+    if (Xa == round(pt1.x) && Xb == round(pt2.x)) {
+        Ya = round(pt1.y);
+        Yb = round(pt2.y);
     }
     else {
-        Yb = pt1.y;
-        Ya = pt2.y;
+        Yb = round(pt1.y);
+        Ya = round(pt2.y);
     }
-    int x_distance = Xa-Xb; x_distance = abs(x_distance);
-    int y_distance = Ya-Yb; y_distance = abs(y_distance);
+
+
+    // Check for switching points
+
+    bool switch_points = false;
+    if (x0==x1 && y0>y1) {    // Vertical line
+        switch_points = true;
+
+    }
+    else if (y0==y1 && x0 > x1) {   // Horizontal line
+        switch_points = true;
+    }
+
+
+
+
+
+    Point2D temp{-1,-1};
+    if (switch_points) {
+        std::swap(x0, x1);
+        std::swap(y0, y1);
+        std::swap(z0, z1);
+    }
+
+
+
+    int x_distance = x1-x0;
+    int y_distance = y1-y0;
+
+    if (x_distance < 0) {
+//        throw std::invalid_argument("X-distance can't be negative");
+    }
+    if (y_distance < 0) {
+//        throw std::invalid_argument("Y-distance can't be negative");
+    }
+
+//    m = static_cast<double>(Yb-Ya) / static_cast<double>(Xb-Xa);
+
+
+
+
 
 
     int a;
     double z_val;
 
-    if (Xa==Xb && !triag_filling) {   // Vertical line
-        a=y_distance;
-        for(unsigned int i = Xa; i<=Xb; i++) {
-            z_val = compute_1_on_z_WF(pt1, pt2, a-i+Xa, a);
-            if (pt2.y < pt1.y) {
-                z_val = compute_1_on_z_WF(pt2, pt1, a-i+Xa, a);
-            }
-            for (unsigned int j = min(Ya, Yb); j <= max(Ya, Yb); j++) {
-                z_val = compute_1_on_z_WF(pt1, pt2, a-j+min(Ya, Yb), a);
-                if (pt2.y < pt1.y) {
-                    z_val = compute_1_on_z_WF(pt2, pt1, a-j+min(Ya, Yb), a);
-                }
+    if (x0==x1 && !triag_filling) {   // Vertical line
+    int i = x0;
+    a=y_distance;
+        for (int j = y0; j <= y1; j++) {
+            z_val = compute_1_on_z_WF(z0, z1, a-j+y0, a);
 
-
-                if (i == Xa) {
-                        if (z_val>zbuffer[i][j]) continue;
-                        zbuffer[i][j] = z_val;
-                        image(i, j).red = color.red;
-                    image(i, j).green = color.green;
-                    image(i, j).blue = color.blue;
-                }
-            }
-        }
-    }
-    else if (pt1.y == pt2.y) {   // Horizontal line
-        a=x_distance;
-
-        for(unsigned int i = Xa; i <= Xb ; i++) {
-            z_val = compute_1_on_z_WF(pt1, pt2, a-i+Xa, a);
-            if (pt2.x < pt1.x) {
-                z_val = compute_1_on_z_WF(pt2, pt1, a-i+Xa, a);
-            }
-            for (unsigned int j = min(Ya, Yb); j <= max(Ya, Yb); j++) {
-
-                if (triag_filling) z_val = one_on_z(i, j, zbd);
-                if (i>=width || j>=height) {
-                    cerr<<"Out of range error\n";
-                    exit(1);
-                }
-                if (j == pt1.y) {
+            if (i == x0) {
                     if (z_val>zbuffer[i][j]) continue;
                     zbuffer[i][j] = z_val;
                     image(i, j).red = color.red;
-                    image(i, j).green = color.green;
-                    image(i, j).blue = color.blue;
-                }
+                image(i, j).green = color.green;
+                image(i, j).blue = color.blue;
             }
         }
+        return;
     }
-    else if (m>0 && m<=1 || m >=-1 && m<0) {     // Cursus: geval 1 en 2
+
+    else if (y0 == y1) {   // Horizontal line
         a=x_distance;
 
-        for(unsigned int i = 0; i <= x_distance; i++) {
+        for(int i = x0; i <= x1 ; i++) {
+            z_val = compute_1_on_z_WF(z0, z1, a-i+x0, a);
 
-            int Xi = Xa + i;
-            int Yi = lround(Ya + (m*i));
-            z_val = compute_1_on_z_WF(pt1, pt2, a-i, a);
-            if (pt2.x < pt1.x) {
-                z_val = compute_1_on_z_WF(pt2, pt1, a-i, a);
+            int j = y0;
+            if (triag_filling) z_val = one_on_z(i, j, zbd);
+            if (i>=width || j>=height) {
+                throw std::out_of_range("Out of range error");
             }
+            if (z_val>zbuffer[i][j]) continue;
+            zbuffer[i][j] = z_val;
+            image(i, j).red = color.red;
+            image(i, j).green = color.green;
+            image(i, j).blue = color.blue;
+
+
+        }
+        return;
+    }
+
+    if (x0>x1) {
+        std::swap(x0, x1);
+        std::swap(y0, y1);
+        std::swap(z0, z1);
+    }
+
+    double m = ((double) y1-(double) y0)/ ((double) x1 - (double) x0);
+
+    if (-1 <= m && m <= 1) {     // Cursus: geval 1 en 2
+        a=x_distance;
+
+        for(int i = 0; i <= x_distance; i++) {
+            int Xi = x0 + i;
+            int Yi = round(y0 + (m*i));
+            z_val = compute_1_on_z_WF(z0, z1, a-i, a);
+
             if (z_val>zbuffer[Xi][Yi]) continue;
 
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
-                cerr<<"Out of range error\n";
-                exit(1);
+                throw std::out_of_range("Out of range error");
             }
             zbuffer[Xi][Yi] = z_val;
             image(Xi, Yi).red = color.red;
@@ -295,21 +259,21 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
     }
 
     else if (m > 1) {     // Cursus: geval 3
-        a=y_distance;
-        for(unsigned int i = 0; i <= y_distance; i++) {
+        // Ya < Yb (stijgend)
 
-            int Xi = lround(Xa + (i / m));
-            int Yi = Ya + i;
-            z_val = compute_1_on_z_WF(pt1, pt2, a-i, a);
-            if (pt2.y < pt1.y) {
-                z_val = compute_1_on_z_WF(pt2, pt1, a-i, a);
-            }
+        a=y_distance;
+        for(int i = 0; i <= y_distance; i++) {
+
+            int Xi = round(x0 + (i / m));
+            int Yi = y0 + i;
+            z_val = compute_1_on_z_WF(z0, z1, a-i, a);
+
+
             if (triag_filling) z_val = one_on_z(Xi, Yi, zbd);
 
             if (z_val>zbuffer[Xi][Yi]) continue;
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
-                cerr<<"Out of range error\n";
-                exit(1);
+                throw std::out_of_range("Out of range error");
             }
             zbuffer[Xi][Yi] = z_val;
             image(Xi, Yi).red = color.red;
@@ -319,23 +283,20 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
     }
 
     else if (m < -1) {     // Cursus: geval 4
+        // Ya > Yb (dalend)
         a=y_distance;
-        for(unsigned int i = 0; i <= y_distance; i++) {
-            int Xi = lround(Xa - (i / m));
-            int Yi = Ya - i;
+        for(int i = 0; i <= y_distance; i++) {
+            int Xi = round(x0 - (i / m));
+            int Yi = y0 - i;
 
-            z_val = compute_1_on_z_WF(pt1, pt2, a-i, a);
-            if (pt2.y < pt1.y) {
-//                z_val = compute_1_on_z_WF(pt2, pt1, a-i, a);
-            }
+            z_val = compute_1_on_z_WF(z0, z1, a-i, a);
+
 
             if (triag_filling) z_val = one_on_z(Xi, Yi, zbd);
 
-
             if (z_val>zbuffer[Xi][Yi]) continue;
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
-                cerr<<"Out of range error\n";
-                exit(1);
+                throw std::out_of_range("Out of range error");
             }
             zbuffer[Xi][Yi] = z_val;
             image(Xi, Yi).red = color.red;
@@ -411,8 +372,8 @@ void LineDrawer::drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Ve
     draw_zbuf_line(zbuffer, img, b, a, color, false, zbd);
     draw_zbuf_line(zbuffer, img, a, c, color, false, zbd);
 */
-    int Ymin = std::lround(min(min(a.y, b.y), c.y) + 0.5);
-    int Ymax = std::lround(max(max(a.y, b.y), c.y) - 0.5);
+    int Ymin = std::round(min(min(a.y, b.y), c.y) + 0.5);
+    int Ymax = std::round(max(max(a.y, b.y), c.y) - 0.5);
 
     double xL_AB, xL_AC, xL_BC, xR_AB, xR_AC, xR_BC;
     for (int y=min(Ymin, Ymax); y<=max(Ymin, Ymax); y++) {
@@ -442,8 +403,8 @@ void LineDrawer::drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Ve
             xL_AC = Xi;
             xR_AC = Xi;
         }
-            xL = lround(min(min(xL_AB, xL_AC), xL_BC)+0.5);
-            xR = lround(max(max(xR_AB, xR_AC), xR_BC)-0.5);
+            xL = round(min(min(xL_AB, xL_AC), xL_BC)+0.5);
+            xR = round(max(max(xR_AB, xR_AC), xR_BC)-0.5);
             Point2D p1(xL, y);
             Point2D p2(xR, y);
             if (p1.y != p2.y || (p1.x==0 && p2.x==0)) return;
@@ -525,8 +486,8 @@ Color getDiffuseComponent(Vector3D w, Light li, Color diffReflec) {
 
     ZBuffData zbd = compute_zbuff_data(A, B, C, d, dx, dy);
 
-    int Ymin = std::lround(min(min(a.y, b.y), c.y) + 0.5);
-    int Ymax = std::lround(max(max(a.y, b.y), c.y) - 0.5);
+    int Ymin = std::round(min(min(a.y, b.y), c.y) + 0.5);
+    int Ymax = std::round(max(max(a.y, b.y), c.y) - 0.5);
 
     double xL_AB, xL_AC, xL_BC, xR_AB, xR_AC, xR_BC;
     for (int y=min(Ymin, Ymax); y<=max(Ymin, Ymax); y++) {
@@ -556,8 +517,8 @@ Color getDiffuseComponent(Vector3D w, Light li, Color diffReflec) {
             xL_AC = Xi;
             xR_AC = Xi;
         }
-        xL = lround(min(min(xL_AB, xL_AC), xL_BC)+0.5);
-        xR = lround(max(max(xR_AB, xR_AC), xR_BC)-0.5);
+        xL = round(min(min(xL_AB, xL_AC), xL_BC)+0.5);
+        xR = round(max(max(xR_AB, xR_AC), xR_BC)-0.5);
         Point2D p1(xL, y);
         Point2D p2(xR, y);
         if (p1.y != p2.y || (p1.x==0 && p2.x==0)) return;

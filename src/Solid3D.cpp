@@ -377,14 +377,14 @@ void Solid3D::generateCylinder(Figure &fig, const int n, const double h) {
         points.push_back(p);
     }
     //Faces
-    for (int i=0; i<n-1; i++) {
+    for (int i = 0; i < n; i++) {
         int i1 = i;
-        int i2 = (i+1)%n;
-        int i3 = (n+i+1)%(2*n);
-        int i4 = (n+i)%(2*n);
-        faces.push_back(Face({i1, i2, i3, i4}));
+        int i2 = (i + 1) % n;
+        int i3 = n + (i + 1) % n;
+        int i4 = n + i;
+        faces.push_back(Face({i1, i4, i3, i2}));
     }
-//    faces.push_back(Face({0, 1, n+1, n}));
+//    faces.push_back(Face({0, n, 2*n-1, n-1}));
     //Base+top face
 
     vector<int> baseFace;
