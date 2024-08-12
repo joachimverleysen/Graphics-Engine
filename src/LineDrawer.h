@@ -76,7 +76,7 @@ public:
     img::EasyImage draw2Dlines(Lines2D &lines, const int size, Color &bgColor);;
 
     void draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &color,
-                        bool triag_filling, ZBuffData zbd);
+                        ZBuffData zbd);
 
     void drawZbuffTriangLighted(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B,
                                 const Vector3D &C,

@@ -72,6 +72,8 @@ img::EasyImage zbuffDrawing(Drawing3D &drawing, bool lighted) {
 
 
 
+
+
     ZBuffer zbuffer(dim.width, dim.height);
 
     auto lights = drawing.getLights();

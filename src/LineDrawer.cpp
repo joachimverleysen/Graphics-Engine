@@ -22,15 +22,14 @@ Dimensions LineDrawer::computeDims(Lines2D &lines, const int size) {
 
 // Compute max values
     for (auto &p : points) {
-        if (p.y < 0) {
-        }
+
         dims.Xmax= max(dims.Xmax, p.x);
         dims.Xmin = min(dims.Xmin, p.x);
         dims.Ymax = max(dims.Ymax, p.y);
         dims.Ymin = min(dims.Ymin, p.y);
     }
-    dims.xRange = abs(dims.Xmax-dims.Xmin);
-    dims.yRange = abs(dims.Ymax-dims.Ymin);
+    dims.xRange = dims.Xmax-dims.Xmin;
+    dims.yRange = dims.Ymax-dims.Ymin;
     dims.imgX = size * (dims.xRange/max(dims.xRange, dims.yRange));
     dims.imgY = size * (dims.yRange / max(dims.xRange, dims.yRange));
     dims.d = 0.95 * (dims.imgX/dims.xRange);    // scale factor
@@ -75,7 +74,7 @@ img::EasyImage LineDrawer::draw2Dlines(Lines2D &lines, const int size, Color &bg
     cout<<"Drawing "<<lines.size()<<" "<<"lines. Check 'out.bmp'"<<endl;
     for (auto line : lines) {
 
-        draw_zbuf_line(zBuffer, myImage, line.p1, line.p2, line.color, false, ZBuffData());
+        draw_zbuf_line(zBuffer, myImage, line.p1, line.p2, line.color, ZBuffData());
     }
 
     return myImage;
@@ -112,7 +111,7 @@ double get_inv_z(int x, int y, ZBuffData &zbd) {
 
 void
 LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &color,
-                           bool triag_filling, ZBuffData zbd= ZBuffData()) {
+                           ZBuffData zbd = ZBuffData()) {
 
     unsigned int x0, x1, y0, y1;
 
@@ -154,7 +153,7 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
     int a;
     double inv_z;
 
-    if (x0==x1 && !triag_filling) {   // Vertical line
+    if (x0==x1) {   // Vertical line
     int i = x0;
     a=y_distance;
         try {
@@ -196,7 +195,6 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
             inv_z = compute_1_on_z_WF(z0, z1, a - i + x0, a);
 
             int j = y0;
-            if (triag_filling) inv_z = get_inv_z(i, j, zbd);
             if (i>=width || j>=height) {
                 throw std::out_of_range("Out of range error");
             }
@@ -270,9 +268,6 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
             int Yi = y0 + i;
             inv_z = compute_1_on_z_WF(z0, z1, a - i, a);
 
-
-            if (triag_filling) inv_z = get_inv_z(Xi, Yi, zbd);
-
             if (inv_z > zbuffer[Xi][Yi]) continue;
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
                 throw std::out_of_range("Out of range error");
@@ -301,9 +296,6 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
             int Yi = y0 - i;
 
             inv_z = compute_1_on_z_WF(z0, z1, a - i, a);
-
-
-            if (triag_filling) inv_z = get_inv_z(Xi, Yi, zbd);
 
             if (inv_z > zbuffer[Xi][Yi]) continue;
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
@@ -388,12 +380,22 @@ void LineDrawer::drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Ve
         updateBounds(b, c);
         updateBounds(c, a);
 
-            double xLint = round(xL+0.5);
-            double xRint = round(xR-0.5);
-            Point2D p1(xLint, y);
-            Point2D p2(xRint, y);
+        if (xL == INFTY && xR == -INFTY) {
+            throw std::invalid_argument("Bounds didn't update correctly");
+        }
+            int xLint = round(xL+0.5);
+            int xRint = round(xR-0.5);
 
-            draw_zbuf_line(zbuffer, img, p1, p2, color, true, zbd);
+        for (int x = xLint; x <= xRint; ++x) {
+
+            double inv_z = 1.0001 * zbd.one_on_zG + (x - zbd.xG) * zbd.dzdx + (y - zbd.yG) * zbd.dzdy;
+            if (inv_z > zbuffer[x][y]) continue;
+
+            zbuffer[x][y] = inv_z;
+            img(x, y).red = color.red;
+            img(x, y).green = color.green;
+            img(x, y).blue = color.blue;
+        }
 
     }
 }
@@ -519,7 +521,7 @@ Color getDiffuseComponent(Vector3D w, Light li, Color diffReflec) {
         if (resultingColor.blue>255) resultingColor.blue = 255;
 
 
-        draw_zbuf_line(zbuffer, img, p1, p2, resultingColor, true, zbd);
+        draw_zbuf_line(zbuffer, img, p1, p2, resultingColor, zbd);
 //            drawLine2D(img, p1, p2, color);
 
     }
