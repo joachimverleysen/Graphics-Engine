@@ -106,8 +106,8 @@ double compute_1_on_z_WF(const double& z0, const double& z1, double i, double a)
     return result;
 }
 
-double one_on_z(int x, int y, ZBuffData &zbd) {
-    return (zbd.one_on_zG + (x-zbd.xG)*zbd.dzdx + (y-zbd.yG)*zbd.dzdy);
+double get_inv_z(int x, int y, ZBuffData &zbd) {
+    return 1.0001*(zbd.one_on_zG + (x-zbd.xG)*zbd.dzdx + (y-zbd.yG)*zbd.dzdy);
 }
 
 void
@@ -173,13 +173,11 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
 
     int x_distance = x1-x0;
     int y_distance = y1-y0;
+    x_distance = abs(x_distance);
+    y_distance = abs(y_distance);
 
-    if (x_distance < 0) {
-//        throw std::invalid_argument("X-distance can't be negative");
-    }
-    if (y_distance < 0) {
-//        throw std::invalid_argument("Y-distance can't be negative");
-    }
+
+
 
 //    m = static_cast<double>(Yb-Ya) / static_cast<double>(Xb-Xa);
 
@@ -189,17 +187,26 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
 
 
     int a;
-    double z_val;
+    double inv_z;
 
     if (x0==x1 && !triag_filling) {   // Vertical line
     int i = x0;
     a=y_distance;
+        try {
+            if (y_distance < 0) {
+                throw std::invalid_argument("Y-distance can't be negative");
+            }
+
+
+        } catch (const std::invalid_argument& e) {
+            std::cerr << "Caught exception: " << e.what() << std::endl;
+        }
         for (int j = y0; j <= y1; j++) {
-            z_val = compute_1_on_z_WF(z0, z1, a-j+y0, a);
+            inv_z = compute_1_on_z_WF(z0, z1, a - j + y0, a);
 
             if (i == x0) {
-                    if (z_val>zbuffer[i][j]) continue;
-                    zbuffer[i][j] = z_val;
+                    if (inv_z > zbuffer[i][j]) continue;
+                    zbuffer[i][j] = inv_z;
                     image(i, j).red = color.red;
                 image(i, j).green = color.green;
                 image(i, j).blue = color.blue;
@@ -210,17 +217,26 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
 
     else if (y0 == y1) {   // Horizontal line
         a=x_distance;
+        try {
+            if (x_distance < 0) {
+                throw std::invalid_argument("X-distance can't be negative");
+            }
+
+
+        } catch (const std::invalid_argument& e) {
+            std::cerr << "Caught exception: " << e.what() << std::endl;
+        }
 
         for(int i = x0; i <= x1 ; i++) {
-            z_val = compute_1_on_z_WF(z0, z1, a-i+x0, a);
+            inv_z = compute_1_on_z_WF(z0, z1, a - i + x0, a);
 
             int j = y0;
-            if (triag_filling) z_val = one_on_z(i, j, zbd);
+            if (triag_filling) inv_z = get_inv_z(i, j, zbd);
             if (i>=width || j>=height) {
                 throw std::out_of_range("Out of range error");
             }
-            if (z_val>zbuffer[i][j]) continue;
-            zbuffer[i][j] = z_val;
+            if (inv_z > zbuffer[i][j]) continue;
+            zbuffer[i][j] = inv_z;
             image(i, j).red = color.red;
             image(i, j).green = color.green;
             image(i, j).blue = color.blue;
@@ -235,23 +251,35 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
         std::swap(y0, y1);
         std::swap(z0, z1);
     }
+    x_distance = x1-x0;
 
     double m = ((double) y1-(double) y0)/ ((double) x1 - (double) x0);
 
     if (-1 <= m && m <= 1) {     // Cursus: geval 1 en 2
         a=x_distance;
+        try {
+            if (x_distance < 0) {
+                throw std::invalid_argument("X-distance can't be negative");
+            }
+
+
+        } catch (const std::invalid_argument& e) {
+            std::cerr << "Caught exception: " << e.what() << std::endl;
+        }
 
         for(int i = 0; i <= x_distance; i++) {
             int Xi = x0 + i;
             int Yi = round(y0 + (m*i));
-            z_val = compute_1_on_z_WF(z0, z1, a-i, a);
+            inv_z = compute_1_on_z_WF(z0, z1, a - i, a);
 
-            if (z_val>zbuffer[Xi][Yi]) continue;
+            if (inv_z > zbuffer[Xi][Yi]) continue;
 
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
                 throw std::out_of_range("Out of range error");
-            }
-            zbuffer[Xi][Yi] = z_val;
+            }/*if (distance == 0) {
+        throw std::invalid_argument("Distance = 0");
+    }*/
+            zbuffer[Xi][Yi] = inv_z;
             image(Xi, Yi).red = color.red;
             image(Xi, Yi).green = color.green;
             image(Xi, Yi).blue = color.blue;
@@ -262,20 +290,29 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
         // Ya < Yb (stijgend)
 
         a=y_distance;
+        try {
+            if (y_distance < 0) {
+                throw std::invalid_argument("Y-distance can't be negative");
+            }
+
+
+        } catch (const std::invalid_argument& e) {
+            std::cerr << "Caught exception: " << e.what() << std::endl;
+        }
         for(int i = 0; i <= y_distance; i++) {
 
             int Xi = round(x0 + (i / m));
             int Yi = y0 + i;
-            z_val = compute_1_on_z_WF(z0, z1, a-i, a);
+            inv_z = compute_1_on_z_WF(z0, z1, a - i, a);
 
 
-            if (triag_filling) z_val = one_on_z(Xi, Yi, zbd);
+            if (triag_filling) inv_z = get_inv_z(Xi, Yi, zbd);
 
-            if (z_val>zbuffer[Xi][Yi]) continue;
+            if (inv_z > zbuffer[Xi][Yi]) continue;
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
                 throw std::out_of_range("Out of range error");
             }
-            zbuffer[Xi][Yi] = z_val;
+            zbuffer[Xi][Yi] = inv_z;
             image(Xi, Yi).red = color.red;
             image(Xi, Yi).green = color.green;
             image(Xi, Yi).blue = color.blue;
@@ -285,20 +322,29 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
     else if (m < -1) {     // Cursus: geval 4
         // Ya > Yb (dalend)
         a=y_distance;
+        try {
+            if (y_distance < 0) {
+                throw std::invalid_argument("Y-distance can't be negative");
+            }
+
+
+        } catch (const std::invalid_argument& e) {
+            std::cerr << "Caught exception: " << e.what() << std::endl;
+        }
         for(int i = 0; i <= y_distance; i++) {
             int Xi = round(x0 - (i / m));
             int Yi = y0 - i;
 
-            z_val = compute_1_on_z_WF(z0, z1, a-i, a);
+            inv_z = compute_1_on_z_WF(z0, z1, a - i, a);
 
 
-            if (triag_filling) z_val = one_on_z(Xi, Yi, zbd);
+            if (triag_filling) inv_z = get_inv_z(Xi, Yi, zbd);
 
-            if (z_val>zbuffer[Xi][Yi]) continue;
+            if (inv_z > zbuffer[Xi][Yi]) continue;
             if (Xi<0 || Xi>=width || Yi<0 || Yi >= height) {
                 throw std::out_of_range("Out of range error");
             }
-            zbuffer[Xi][Yi] = z_val;
+            zbuffer[Xi][Yi] = inv_z;
             image(Xi, Yi).red = color.red;
             image(Xi, Yi).green = color.green;
             image(Xi, Yi).blue = color.blue;
@@ -333,7 +379,6 @@ ZBuffData compute_zbuff_data(const Vector3D A, const Vector3D B, const Vector3D 
     Vector3D w = Vector3D::vector(0,0,0);
     AB = B-A;
     AC = C-A;
-    BC = C-B;
 
     w = AB.cross_equals(AC);    // Vectorieel product (kruisproduct)
     zbd.w = w;
@@ -366,52 +411,54 @@ void LineDrawer::drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Ve
     rescalePoint2D(b, d, dx, dy);
     rescalePoint2D(c, d, dx, dy);*/
 
-    ZBuffData zbd = compute_zbuff_data(A, B, C, d, dx, dy);
 
   /*  draw_zbuf_line(zbuffer, img, a, b, color, false, zbd);
     draw_zbuf_line(zbuffer, img, b, a, color, false, zbd);
     draw_zbuf_line(zbuffer, img, a, c, color, false, zbd);
 */
-    int Ymin = std::round(min(min(a.y, b.y), c.y) + 0.5);
-    int Ymax = std::round(max(max(a.y, b.y), c.y) - 0.5);
+    int Ymin = static_cast<int>(round(min(min(a.y, b.y), c.y) + 0.5));
+    int Ymax = static_cast<int>(round(max(max(a.y, b.y), c.y) - 0.5));
 
-    double xL_AB, xL_AC, xL_BC, xR_AB, xR_AC, xR_BC;
-    for (int y=min(Ymin, Ymax); y<=max(Ymin, Ymax); y++) {
-        xL_AB = INFTY, xL_AC = INFTY, xL_BC = INFTY;
-        xR_AB = -INFTY, xR_AC = -INFTY, xR_BC = -INFTY;
-        int xL, xR;
 
-        Point2D P = a;
-        Point2D Q = b;
+/*    if (Ymax - Ymin ==1) {
+        double xL = std::min(std::min(a.x, b.x), c.x);
+        double xR = std::max(std::min(a.x, b.x), c.x);
+        int xLInt = static_cast<int>(std::round(xL + 0.5));
+        int xRInt = static_cast<int>(std::round(xR - 0.5));
+        Point2D p1(xLInt, Ymin);
+        Point2D p2(xRInt, Ymin);
+        draw_zbuf_line(zbuffer, img, p1, p2, color, true, zbd);
+        return;
+    }*/
 
-        if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {     // Test for intersection
-            double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
-            xL_AB = Xi;
-            xR_AB = Xi;
+    //todo: optimize
+    for (int y = Ymin; y <= Ymax; y++) {
+        double xL = INFTY, xR = -INFTY;
+
+        auto updateBounds = [&](const Point2D &P, const Point2D &Q) {
+            if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {
+                double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
+                xL = std::min(xL, Xi);
+                xR = std::max(xR, Xi);
+            }
+        };
+
+        updateBounds(a, b);
+        updateBounds(b, c);
+        updateBounds(c, a);
+
+        if (xL == INFTY || xR == -INFTY) {
+//            throw std::runtime_error("Bounds did not update correctly");
         }
 
-        P = b; Q = c;
-        if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {     // Test for intersection
-            double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
-            xL_BC = Xi;
-            xR_BC = Xi;
-        }
+        int xLInt = static_cast<int>(std::round(xL + 0.5));
+        int xRInt = static_cast<int>(std::round(xR - 0.5));
 
-        P = a; Q = c;
-        if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {     // Test for intersection
-            double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
-            xL_AC = Xi;
-            xR_AC = Xi;
-        }
-            xL = round(min(min(xL_AB, xL_AC), xL_BC)+0.5);
-            xR = round(max(max(xR_AB, xR_AC), xR_BC)-0.5);
-            Point2D p1(xL, y);
-            Point2D p2(xR, y);
-            if (p1.y != p2.y || (p1.x==0 && p2.x==0)) return;
+        Point2D p1(xLInt, y);
+        Point2D p2(xRInt, y);
+        ZBuffData zbd = compute_zbuff_data(A, B, C, d, dx, dy);
 
-            draw_zbuf_line(zbuffer, img, p1, p2, color, true, zbd);
-//            drawLine2D(img, p1, p2, color);
-
+        draw_zbuf_line(zbuffer, img, p1, p2, color, true, zbd);
     }
 }
 
