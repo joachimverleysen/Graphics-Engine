@@ -114,13 +114,6 @@ void
 LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &color,
                            bool triag_filling, ZBuffData zbd= ZBuffData()) {
 
-    // NOTE: The point (0,0) is the left bottom corner
-
-/*    pt1.x = round(pt1.x);
-    pt1.y = round(pt1.y);
-    pt2.x = round(pt2.x);
-    pt2.y = round(pt2.y);*/
-
     unsigned int x0, x1, y0, y1;
 
     x0 = round(pt1.x);
@@ -135,17 +128,6 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
     unsigned int height = image.get_height();
     int Xa = round(min(pt1.x, pt2.x));
     int Xb = lround(max(pt1.x, pt2.x));
-    int Ya, Yb;
-
-    if (Xa == round(pt1.x) && Xb == round(pt2.x)) {
-        Ya = round(pt1.y);
-        Yb = round(pt2.y);
-    }
-    else {
-        Yb = round(pt1.y);
-        Ya = round(pt2.y);
-    }
-
 
     // Check for switching points
 
@@ -158,33 +140,16 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
         switch_points = true;
     }
 
-
-
-
-
-    Point2D temp{-1,-1};
     if (switch_points) {
         std::swap(x0, x1);
         std::swap(y0, y1);
         std::swap(z0, z1);
     }
 
-
-
     int x_distance = x1-x0;
     int y_distance = y1-y0;
     x_distance = abs(x_distance);
     y_distance = abs(y_distance);
-
-
-
-
-//    m = static_cast<double>(Yb-Ya) / static_cast<double>(Xb-Xa);
-
-
-
-
-
 
     int a;
     double inv_z;
@@ -398,43 +363,19 @@ void LineDrawer::drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Ve
                                  double d, double dx, double dy, Color color) {
 
     double INFTY = std::numeric_limits<double>::infinity();
-    MyTools mt;
     Point2D a = proj_triag_point(A, d, dx, dy);
     Point2D b = proj_triag_point(B, d, dx, dy);
     Point2D c = proj_triag_point(C, d, dx, dy);
-/*    Point2D a = proj_point(A, d);
-    Point2D b = proj_point(B, d);
-    Point2D c = proj_point(C, d);*/
-
-/*
-    rescalePoint2D(a, d, dx, dy);
-    rescalePoint2D(b, d, dx, dy);
-    rescalePoint2D(c, d, dx, dy);*/
 
 
-  /*  draw_zbuf_line(zbuffer, img, a, b, color, false, zbd);
-    draw_zbuf_line(zbuffer, img, b, a, color, false, zbd);
-    draw_zbuf_line(zbuffer, img, a, c, color, false, zbd);
-*/
-    int Ymin = static_cast<int>(round(min(min(a.y, b.y), c.y) + 0.5));
-    int Ymax = static_cast<int>(round(max(max(a.y, b.y), c.y) - 0.5));
+    ZBuffData zbd = compute_zbuff_data(A, B, C, d, dx, dy);
 
+    int Ymin = static_cast<int>(std::round(min(min(a.y, b.y), c.y) + 0.5));
+    int Ymax = static_cast<int>(std::round(max(max(a.y, b.y), c.y) - 0.5));
 
-/*    if (Ymax - Ymin ==1) {
-        double xL = std::min(std::min(a.x, b.x), c.x);
-        double xR = std::max(std::min(a.x, b.x), c.x);
-        int xLInt = static_cast<int>(std::round(xL + 0.5));
-        int xRInt = static_cast<int>(std::round(xR - 0.5));
-        Point2D p1(xLInt, Ymin);
-        Point2D p2(xRInt, Ymin);
-        draw_zbuf_line(zbuffer, img, p1, p2, color, true, zbd);
-        return;
-    }*/
+    for (int y=Ymin; y<=Ymax; y++) {
 
-    //todo: optimize
-    for (int y = Ymin; y <= Ymax; y++) {
         double xL = INFTY, xR = -INFTY;
-
         auto updateBounds = [&](const Point2D &P, const Point2D &Q) {
             if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {
                 double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
@@ -447,18 +388,13 @@ void LineDrawer::drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Ve
         updateBounds(b, c);
         updateBounds(c, a);
 
-        if (xL == INFTY || xR == -INFTY) {
-//            throw std::runtime_error("Bounds did not update correctly");
-        }
+            double xLint = round(xL+0.5);
+            double xRint = round(xR-0.5);
+            Point2D p1(xLint, y);
+            Point2D p2(xRint, y);
 
-        int xLInt = static_cast<int>(std::round(xL + 0.5));
-        int xRInt = static_cast<int>(std::round(xR - 0.5));
+            draw_zbuf_line(zbuffer, img, p1, p2, color, true, zbd);
 
-        Point2D p1(xLInt, y);
-        Point2D p2(xRInt, y);
-        ZBuffData zbd = compute_zbuff_data(A, B, C, d, dx, dy);
-
-        draw_zbuf_line(zbuffer, img, p1, p2, color, true, zbd);
     }
 }
 
