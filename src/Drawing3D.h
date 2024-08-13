@@ -21,6 +21,7 @@ Color bgColor=Color(0,0,0);
 int nrFigures=0;
 Vector3D eye=Vector3D::point(1,0,0);
 Figures3D figures;
+string lsys_inputfile;
 
 Lights3D lights;
 

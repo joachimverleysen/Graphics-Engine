@@ -117,3 +117,11 @@ void Figure::setFractalscale(double fractalscale) {
     Figure::fractalscale = fractalscale;
 }
 
+const string &Figure::getType() const {
+    return type;
+}
+
+void Figure::setType(const string &type) {
+    Figure::type = type;
+}
+

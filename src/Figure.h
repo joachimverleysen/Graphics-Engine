@@ -33,6 +33,13 @@ class Figure {
 
     int nrIterations;
     double fractalscale;
+    string type;
+public:
+    const string &getType() const;
+
+    void setType(const string &type);
+
+    // todo: use this every time
 public:
     double getFractalscale() const;
 

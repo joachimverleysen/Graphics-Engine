@@ -49,68 +49,116 @@ int MyLSystem3D::parser(string inputfile) {
     return 0;
 }
 
+struct State3D {
+    Vector3D H;
+    Vector3D L;
+    Vector3D U;
+    Vector3D currPos;
+    State3D(const Vector3D &h, const Vector3D &l, const Vector3D &u, const Vector3D &currPos) : H(h), L(l), U(u),
+                                                                                               currPos(currPos) {}
+};
+
+
 void MyLSystem3D::_str2Points(const string &str) {
     vector<Vector3D> _points;
     vector<Face> _faces;
     double angle=starting_angle;
     Vector3D currPos = Vector3D::point(0, 0, 0);
-    _points.emplace_back(currPos);
+    Vector3D nextPt = Vector3D::point(0,0,0);
     Vector3D H = Vector3D::vector(1, 0, 0);
     Vector3D L = Vector3D::vector(0, 1, 0);
     Vector3D U = Vector3D::vector(0, 0, 1);
+    State3D currState{H, L, U, currPos};
+    vector<vector<Vector3D>> stack;
     int ptCounter=0;
     // Converts the initiator string to a vector of _points
+    Vector3D Hnew, Lnew, Unew;
     for (char c : str) {
         if (c == '+') {
-            H=H*cos(angle)+L*sin(angle);
-            L=-H*sin(angle)+L*cos(angle);
+            Hnew=H*cos(angle)+L*sin(angle);
+            Lnew=-H*sin(angle)+L*cos(angle);
+            H=Hnew;
+            L = Lnew;
+
             continue;
         }
         else if (c == '-') {
-            H=H*cos(-angle)+L*sin(-angle);
-            L=-H*sin(-angle)+L*cos(-angle);
+            Hnew=H*cos(-angle)+L*sin(-angle);
+            Lnew=-H*sin(-angle)+L*cos(-angle);
+            H=Hnew;
+            L=Lnew;
+
             continue;
         }
         else if (c == '^') {
-            H=H*cos(angle)+U*sin(angle);
-            U=-H*sin(angle)+U*cos(angle);
+            Hnew=H*cos(angle)+U*sin(angle);
+            Unew=-H*sin(angle)+U*cos(angle);
+            H=Hnew;
+            U=Unew;
+
             continue;
         }
         else if (c == '&') {
-            H=H*cos(-angle)+U*sin(-angle);
-            U=-H*sin(-angle)+U*cos(-angle);
+            Hnew=H*cos(-angle)+U*sin(-angle);
+            Unew=-H*sin(-angle)+U*cos(-angle);
+            H=Hnew;
+            U=Unew;
             continue;
         }
         else if (c == '\\') {
-            L=L*cos(angle)-U*sin(angle);
-            U=L*sin(angle)+U*cos(angle);
+            Lnew=L*cos(angle)-U*sin(angle);
+            Unew=L*sin(angle)+U*cos(angle);
+            L=Lnew;
+            U=Unew;
             continue;
         }
         else if (c == '/') {
-            L=L*cos(-angle)-U*sin(-angle);
-            U=L*sin(-angle)+U*cos(-angle);
+            Lnew=L*cos(-angle)-U*sin(-angle);
+            Unew=L*sin(-angle)+U*cos(-angle);
+            L=Lnew;
+            U=Unew;
             continue;
         }
         else if (c == '|') {
-            H=-H;
-            L=-L;
+            H*=-1;
+            L*=-1;
             continue;
         }
-        else if (alphabet.find(c) == alphabet.end()) cerr<<"Undefined char"<<endl;
+        else if (c == '(') {
+            stack.push_back({nextPt, H, L, U});
+            continue;
+        }
+        else if (c == ')') {
+
+            std::vector<Vector3D> prevPos = stack.back();
+            stack.pop_back();
+
+            nextPt = prevPos[0];
+            H = prevPos[1];
+            L = prevPos[2];
+            U = prevPos[3];
+        }
+        else if (alphabet.find(c) == alphabet.end()) {
+            throw std::invalid_argument("Unrecognized char");
+        }
         else  {
-            Vector3D nextPt = currPos+H;
+            currPos = nextPt;
+
+            nextPt = currPos+H;
+            _points.emplace_back(currPos);
             _points.emplace_back(nextPt);
 
             if (drawFunction[c] == 1) {
                 _faces.emplace_back(Face({ptCounter, ptCounter + 1}));
             }
-            currPos = nextPt;
             ptCounter++;
         }
     }
     setFaces(_faces);
     setPoints(_points);
 }
+
+//todo: combine lsystem3d and 2d
 
 void MyLSystem3D::applyReplacement(string &s) {
     string str_new;
@@ -122,7 +170,11 @@ void MyLSystem3D::applyReplacement(string &s) {
         else if (c == '\\') str_new+='\\';
         else if (c == '|') str_new+='|';
         else if (c == '^') str_new+='^';
-        else if (alphabet.find(c) == alphabet.end()) cerr<<"Undefined char"<<endl;
+        else if (c == '(') str_new+='(';
+        else if (c == ')') str_new+=')';
+        else if (alphabet.find(c) == alphabet.end()) {
+            throw std::invalid_argument("Undefined char");
+        }
         else str_new += rules[c];
     }
     s = str_new;
@@ -141,7 +193,6 @@ void MyLSystem3D::computePoints() {
 void MyLSystem3D::generateFigure(Figure &fig) {
     computePoints();
     fig.setPoints(getPoints());
-    fig.setColor(color);
     fig.setFaces(faces);
 }
 

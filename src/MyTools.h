@@ -43,7 +43,7 @@ public:
 
     void convert_fig_to_eyesys(Figure &fig, const Vector3D &eye);
 
-    Lines2D getLineArray(const vector<Point2D> &points, Color col);
+    Lines2D getLineArray2D(const vector<Point2D> &points, Color col);
 
     Matrix eyePointTrans(const Vector3D &eyepoint);
 

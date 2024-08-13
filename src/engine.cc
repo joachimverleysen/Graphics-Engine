@@ -8,6 +8,7 @@
 #include "Solid3D.h"
 #include "MyParser.h"
 #include "MyTools.h"
+#include "MyLSystem3D.h"
 
 #include <fstream>
 #include <iostream>
@@ -40,11 +41,16 @@ Lines2D do_projection(Figures3D& figures, Vector3D& eye) {
         vector<Point2D> proj_points = mt.compute_proj_points(fig);
         fig.setProjPoints(proj_points);
 //        vector<Face> faces = fig.getFaces();
-        Lines2D lines = mt.computeLines(fig);
+        Lines2D  lines;
+        if (fig.getType() == "3DLsystem") {
+            lines = mt.getLineArray2D(fig.getProjPoints(), fig.getColor());
+        }
+        else lines = mt.computeLines(fig);
         result.insert(result.end(), lines.begin(), lines.end());
     }
     return result;
 }
+//todo: move extra functions to seperate file
 
 /**
 @brief draws all the figures in the drawing, but with color fill instead of wireframe
@@ -179,7 +185,7 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
         vector<Point2D> points;
         ls.computePoints(points);
         ls.setPoints(points);
-        Lines2D lines = mt.getLineArray(points, ls.getColor());
+        Lines2D lines = mt.getLineArray2D(points, ls.getColor());
         image = ld.draw2Dlines(lines, drawing.getSize(), bgColor);
     }
     else if (type == "LightedZBuffering") {

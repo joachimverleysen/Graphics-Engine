@@ -82,7 +82,7 @@ vector<Point2D> MyTools::compute_proj_points(Figure &fig) {
     return result;
 }
 
-Lines2D MyTools::getLineArray(const vector<Point2D> &points, Color col) {
+Lines2D MyTools::getLineArray2D(const vector<Point2D> &points, Color col) {
     // Pairs the points in the pointArray 2 by 2 to create lines
     Lines2D result;
     for (int i=0; i<points.size(); i+=2) {
@@ -105,7 +105,7 @@ Lines2D MyTools::computeLines(Figure &fig) {
                 Point2D point = fig.getProjPoints()[i];
                 points.push_back(point);
             }
-            Lines2D lines = getLineArray(points, col);
+            Lines2D lines = getLineArray2D(points, col);
             result.insert(result.end(), lines.begin(), lines.end());
         }
         else if (face.point_indexes.size() > 2) {
@@ -121,7 +121,7 @@ Lines2D MyTools::computeLines(Figure &fig) {
                 points.push_back(p1);
                 points.push_back(p2);
             }
-            Lines2D lines = getLineArray(points, col);
+            Lines2D lines = getLineArray2D(points, col);
             result.insert(result.end(), lines.begin(), lines.end());
         }
 

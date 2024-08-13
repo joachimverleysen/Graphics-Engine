@@ -137,6 +137,7 @@ void MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawin
 
         if (figType == "3DLSystem") {
             MyLSystem3D lsys(inputfile);
+            fig.setType("3DLsystem");
             lsys.generateFigure(fig);
         };
 
