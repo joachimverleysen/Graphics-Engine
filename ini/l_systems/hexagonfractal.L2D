@@ -1,0 +1,18 @@
+
+Alphabet = {X, Y}
+
+Draw = {
+        X -> 1,
+        Y -> 0
+}
+
+Rules = {
+        X -> "X+X+X+X+X+X+Y",
+        Y -> "YYY"
+
+}
+
+Initiator     = "X+X+X+X+X+X+Y"
+Angle         = 60
+StartingAngle = 0
+Iterations    = 3
