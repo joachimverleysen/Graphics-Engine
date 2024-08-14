@@ -348,7 +348,7 @@ ZBuffData compute_zbuff_data(const Vector3D A, const Vector3D B, const Vector3D 
     return zbd;
 }
 
-
+//todo: move to color class
 Color getAmbientComponent(Light l, Color ambientReflec) {
     double redPCT=0;  // Percentage value
     double bluePCT=0;  // Percentage value

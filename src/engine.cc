@@ -19,21 +19,13 @@
 #include <cmath>
 
 
-//todo: move extra functions to seperate file
 //todo: logging
-//todo: change project structure, classes...
 //todo: more efficient code
 //todo: error handling
 //todo: remove using namespace std
+//todo delete MyTools class
 
 using namespace std;
-
-
-/**
-@brief draws all the figures in the drawing, but with color fill instead of wireframe
-\n Makes use of z-buffer
- */
-
 
 
 img::EasyImage generateImage(const ini::Configuration &conf) {

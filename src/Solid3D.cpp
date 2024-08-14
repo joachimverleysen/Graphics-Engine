@@ -452,6 +452,8 @@ void Solid3D::generateFractal(Figure &fig, Figures3D &fractal, const int nr_iter
             Matrix scale_mtx = Transformations::get_scale_mtx(1/scale);
             for (int i=0; i!=original.getPoints().size(); i++){
                 Figure fig_copy = fig;
+
+                //todo: use Transformations class
                 mt.applyTransformation(fig_copy, scale_mtx);
                 Vector3D point_new = fig_copy.getPoints()[i];
                 Vector3D trans = original.getPoints()[i] - point_new    ;
