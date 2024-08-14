@@ -27,9 +27,6 @@
 
 using namespace std;
 
-enum class drawingType {LSystem2D, Wireframe, LSystem3D};
-
-
 
 void doTransitions(Drawing3D &drawing) {
     MyTools mt;
@@ -48,7 +45,6 @@ Lines2D do_projection(Figures3D& figures, Vector3D& eye) {
         mt.convert_fig_to_eyesys(fig, eye);
         vector<Point2D> proj_points = mt.compute_proj_points(fig);
         fig.setProjPoints(proj_points);
-//        vector<Face> faces = fig.getFaces();
         Lines2D  lines;
         if (fig.getType() == "3DLsystem") {
             lines = mt.getLineArray2D(fig.getProjPoints(), fig.getColor());
@@ -64,7 +60,7 @@ Lines2D do_projection(Figures3D& figures, Vector3D& eye) {
 \n Makes use of z-buffer
  */
 
-img::EasyImage zbuffDrawing(Drawing3D &drawing, bool lighted) {
+img::EasyImage zbuffDrawing(Drawing3D &drawing) {
     MyTools mt;
     LineDrawer ld;
     Vector3D eye = drawing.getEye();
@@ -80,12 +76,7 @@ img::EasyImage zbuffDrawing(Drawing3D &drawing, bool lighted) {
 
     Dimensions dim = ld.computeDims(lines, size);
 
-
     img::EasyImage image(dim.width, dim.height);
-
-
-
-
 
     ZBuffer zbuffer(dim.width, dim.height);
 
@@ -119,38 +110,10 @@ img::EasyImage zbuffDrawing(Drawing3D &drawing, bool lighted) {
 
                 ld.drawZbuffTriang(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color, ambientReflec,
                                           lights);
-
-
-
         }
     }
     return image;
 }
-
-Drawing3D getSingleTriangleDrawing() {
-    Drawing3D result;
-    Vector3D a = Vector3D::point(1, 1, 1);
-    Vector3D b = Vector3D::point(1, -1, 1);
-    Vector3D c = Vector3D::point(-1, 1, 1);
-    vector<Vector3D> points;
-    points.push_back(a);
-    points.push_back(b);
-    points.push_back(c);
-    Figure testfig;
-    testfig.setColor(Color(1,0,0));
-    testfig.setPoints(points);
-    Face f({0,1,2});
-    vector<Face> faces; faces.push_back(f);
-    testfig.setFaces(faces);
-//    mt.convert_point_to_eyesys(testfig, eye);
-    Figures3D figs; figs.push_back(testfig);
-    result.setFigures(figs);
-    Vector3D eye = Vector3D::point(100, 50, 75);
-    result.setEye(eye);
-    result.setSize(1000);
-    return result;
-}
-
 
 
 img::EasyImage generateImage(const ini::Configuration &conf) {
@@ -175,7 +138,7 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
     }
     else if (type=="ZBuffering") {
         doTransitions(drawing);
-        image = zbuffDrawing(drawing, false);
+        image = zbuffDrawing(drawing);
     }
     else if (type=="Wireframe") {
         Vector3D eye = drawing.getEye();
@@ -196,7 +159,7 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
     }
     else if (type == "LightedZBuffering") {
         doTransitions(drawing);
-        image = zbuffDrawing(drawing, true);
+        image = zbuffDrawing(drawing);
     }
 
 
