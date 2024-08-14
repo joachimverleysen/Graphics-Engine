@@ -9,6 +9,7 @@
 #include "MyParser.h"
 #include "MyTools.h"
 #include "MyLSystem3D.h"
+#include "Transformations.h"
 
 #include <fstream>
 #include <iostream>
@@ -28,22 +29,22 @@
 using namespace std;
 
 
-void doTransitions(Drawing3D &drawing) {
-    MyTools mt;
-    Figures3D figs = drawing.getFigures();
-    for (auto& fig : figs) {
-        mt.doTransitions(fig);
-    }
-    drawing.setFigures(figs);
-}
+//void doTransitions(Drawing3D &drawing) {
+//    MyTools mt;
+//    Figures3D figs = drawing.getFigures();
+//    for (auto& fig : figs) {
+//        mt.doTransitions(fig);
+//    }
+//    drawing.setFigures(figs);
+//}
 
 Lines2D do_projection(Figures3D& figures, Vector3D& eye) {
     MyTools mt;
     Lines2D result;
     Figures3D figs = figures;
     for (Figure &fig : figs) {
-        mt.convert_fig_to_eyesys(fig, eye);
-        vector<Point2D> proj_points = mt.compute_proj_points(fig);
+        Transformations::to_eye_system(fig, eye);
+        vector<Point2D> proj_points = Transformations::compute_projected_points(fig);
         fig.setProjPoints(proj_points);
         Lines2D  lines;
         if (fig.getType() == "3DLsystem") {
@@ -61,14 +62,16 @@ Lines2D do_projection(Figures3D& figures, Vector3D& eye) {
  */
 
 img::EasyImage zbuffDrawing(Drawing3D &drawing) {
-    MyTools mt;
+    // do transformations
+
     LineDrawer ld;
     Vector3D eye = drawing.getEye();
-    Color bgColor = drawing.getBgColor();
     Figures3D figs = drawing.getFigures();
+    Transformations::apply_transformations(figs);
+    Transformations::to_eye_system(figs, drawing.getEye());
 
     for (auto& f : figs) {
-        mt.triangulateFigure(f);
+        MyTools::triangulateFigure(f);
     }
 
     Lines2D lines = do_projection(figs, eye);
@@ -83,19 +86,20 @@ img::EasyImage zbuffDrawing(Drawing3D &drawing) {
     auto lights = drawing.getLights();
 
     // Convert direction to eyesystem
+    //todo: optimize
     for (Light& l : lights) {
         Vector3D direction = Vector3D::point(0,0,0);
         direction.x = l.direction.x;
         direction.y = l.direction.y;
         direction.z = l.direction.z;
-        mt.convert_point_to_eyesys(direction, eye);
+        Transformations::to_eye_system(direction, eye);
         l.direction.x = direction.x;
         l.direction.y = direction.y;
         l.direction.z = direction.z;
     }
+//    Transformations::to_eye_system(figs, eye);
 
     for (auto& f : figs) {
-        mt.convert_fig_to_eyesys(f, eye);
         Color color = f.getColor();
         for (auto& face : f.getFaces()) {
             if (face.point_indexes.size() != 3) {
@@ -128,23 +132,26 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
     }
     string type = drawing.getType();
 
+    //todo: move code to seperate files
     if (type=="ZBufferedWireframe") {
         Vector3D eye = drawing.getEye();
         Color bgColor = drawing.getBgColor();
-        doTransitions(drawing);
         Figures3D figs = drawing.getFigures();
+        Transformations::apply_transformations(figs);
+        Transformations::to_eye_system(figs, drawing.getEye());
         Lines2D lines = do_projection(figs, eye);
         image = ld.draw2Dlines(lines, drawing.getSize(), bgColor);
     }
     else if (type=="ZBuffering") {
-        doTransitions(drawing);
         image = zbuffDrawing(drawing);
     }
     else if (type=="Wireframe") {
         Vector3D eye = drawing.getEye();
         Color bgColor = drawing.getBgColor();
-        doTransitions(drawing);
         Figures3D figs = drawing.getFigures();
+        Transformations::apply_transformations(figs);
+        Transformations::to_eye_system(figs, drawing.getEye());
+
         Lines2D lines = do_projection(figs, eye);
         image = ld.draw2Dlines(lines, drawing.getSize(), bgColor);
     }
@@ -158,7 +165,6 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
         image = ld.draw2Dlines(lines, drawing.getSize(), bgColor);
     }
     else if (type == "LightedZBuffering") {
-        doTransitions(drawing);
         image = zbuffDrawing(drawing);
     }
 

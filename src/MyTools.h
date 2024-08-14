@@ -23,39 +23,15 @@ struct polars {
 
 class MyTools {
 public:
-    Point2D _do_point_projection(const Vector3D &point, const double d);
-
-    void doTransitions(Figure &fig);
-
-    Matrix get_translate_mtx(const Vector3D &vector);
-
-    Matrix get_scale_mtx(const double scale);
-
-    Matrix get_rot_z(const double angle_deg);
-
-    Matrix get_rot_x(const double angle_deg);
-
-    Matrix get_rot_y(const double angle_deg);
 
     void applyTransformation (Figure &fig, Matrix &mtx);
 
-    Lines2D computeLines(Figure &fig);
+    static Lines2D computeLines(Figure &fig);
 
-    void convert_fig_to_eyesys(Figure &fig, const Vector3D &eye);
+    static Lines2D getLineArray2D(const vector<Point2D> &points, Color col);
 
-    Lines2D getLineArray2D(const vector<Point2D> &points, Color col);
+    static void triangulateFigure(Figure &fig);
 
-    Matrix eyePointTrans(const Vector3D &eyepoint);
-
-    polars toPolar(const Vector3D &point);
-
-    vector<Point2D> compute_proj_points(Figure &fig);
-
-    void triangulateFigure(Figure &fig);
-
-    void point_to_eyesys(Vector3D &point, const Vector3D &eye);
-
-    void convert_point_to_eyesys(Vector3D &point, const Vector3D &eye);
 };
 
 

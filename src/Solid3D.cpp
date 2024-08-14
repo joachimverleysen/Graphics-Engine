@@ -3,6 +3,7 @@
 //
 
 #include "Solid3D.h"
+#include "Transformations.h"
 #include "math.h"
 
 void Solid3D::generateCube(Figure &fig) {
@@ -448,15 +449,15 @@ void Solid3D::generateFractal(Figure &fig, Figures3D &fractal, const int nr_iter
         fractal.clear();
         for (auto fig : prev_fractal) {
             Figure original = fig;
-            Matrix scale_mtx = mt.get_scale_mtx(1/scale);
+            Matrix scale_mtx = Transformations::get_scale_mtx(1/scale);
             for (int i=0; i!=original.getPoints().size(); i++){
-                Figure copy = fig;
-                mt.applyTransformation(copy, scale_mtx);
-                Vector3D point_new = copy.getPoints()[i];
+                Figure fig_copy = fig;
+                mt.applyTransformation(fig_copy, scale_mtx);
+                Vector3D point_new = fig_copy.getPoints()[i];
                 Vector3D trans = original.getPoints()[i] - point_new    ;
-                auto trans_mtx = mt.get_translate_mtx(trans);
-                mt.applyTransformation(copy, trans_mtx);
-                fractal.push_back(copy);
+                auto trans_mtx = Transformations::get_translate_mtx(trans);
+                mt.applyTransformation(fig_copy, trans_mtx);
+                fractal.push_back(fig_copy);
             }
         }
         count --;

@@ -46,6 +46,8 @@ set(engine_sources
 		src/FigureParser.cpp
 		src/LightParser.cpp
 		src/Lsystem2D_parser.cpp
+		src/Transformations.h
+		src/Transformations.cpp
 )
 
 ############################################################
