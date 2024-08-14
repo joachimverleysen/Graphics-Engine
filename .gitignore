@@ -12,11 +12,10 @@ cmake-build-debug/CMakeFiles
 docs
 
 #inifiles
-ini/line_drawings
-ini/wireframes
-ini/wireframes2
-ini/l_systems
-*.bmp
+#ini/line_drawings
+#ini/wireframes
+#ini/wireframes2
+#ini/l_systems
 
 # compressed files
 *tar.gz
