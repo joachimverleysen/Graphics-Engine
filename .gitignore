@@ -16,6 +16,7 @@ docs
 #ini/wireframes
 #ini/wireframes2
 #ini/l_systems
+*.bmp
 
 # compressed files
 *tar.gz
