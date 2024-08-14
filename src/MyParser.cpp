@@ -33,8 +33,8 @@ std::vector<std::string> supported_figures = {
         "Torus",
         "FractalTorus",
         "LineDrawing",
-        "3DLsystem",
-        "2DLsystem"
+        "3DLSystem",
+        "2DLSystem"
 };
 
 
@@ -55,7 +55,7 @@ SuccessEnum MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D 
     drawing.setNrLights(nrLights);
 
     // Lights
-    parse_lights(conf, drawing);
+    MyParser::parse_lights(conf, drawing);
 
     //FIGURES
     for (int i = 0; i < nrFigures; i++) {
@@ -71,10 +71,10 @@ SuccessEnum MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D 
         }
 
 
-        parse_figure(figure, conf, drawing, i);
+        MyParser::parse_figure(figure, conf, drawing, i);
 
 
-        parse_solid3d(figure, conf, drawing);
+        MyParser::parse_solid3d(figure, conf, drawing);
 
         // Generate fractals
         Solid3D solid3D;

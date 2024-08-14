@@ -85,3 +85,62 @@ int Drawing3D::getNrLights() const {
 void Drawing3D::setNrLights(int nrLights) {
     Drawing3D::nrLights = nrLights;
 }
+
+
+img::EasyImage Drawing3D::zbuffDrawing(Drawing3D &drawing) {
+    // do transformations
+
+    LineDrawer ld;
+    Vector3D eye = drawing.getEye();
+    Figures3D figs = drawing.getFigures();
+    Transformations::apply_transformations(figs);
+    Transformations::to_eye_system(figs, drawing.getEye());
+
+    for (auto& f : figs) {
+        MyTools::triangulateFigure(f);
+    }
+
+    Lines2D lines = Transformations::do_projection(figs);
+    int size = drawing.getSize();
+
+    Dimensions dim = ld.computeDims(lines, size);
+
+    img::EasyImage image(dim.width, dim.height);
+
+    ZBuffer zbuffer(dim.width, dim.height);
+
+    auto lights = drawing.getLights();
+
+    // Convert direction to eyesystem
+    //todo: optimize
+    for (Light& l : lights) {
+        Vector3D direction = Vector3D::point(0,0,0);
+        direction.x = l.direction.x;
+        direction.y = l.direction.y;
+        direction.z = l.direction.z;
+        Transformations::to_eye_system(direction, eye);
+        l.direction.x = direction.x;
+        l.direction.y = direction.y;
+        l.direction.z = direction.z;
+    }
+//    Transformations::to_eye_system(figs, eye);
+
+    for (auto& f : figs) {
+        Color color = f.getColor();
+        for (auto& face : f.getFaces()) {
+            if (face.point_indexes.size() != 3) {
+                cerr<<"Error - Face is not a triangle\n";
+                exit(1);
+            }
+            Vector3D p1 = f.getPoints()[face.point_indexes[0]];
+            Vector3D p2 = f.getPoints()[face.point_indexes[1]];
+            Vector3D p3 = f.getPoints()[face.point_indexes[2]];
+
+            Color ambientReflec = f.getAmbientReflection();
+
+            ld.drawZbuffTriang(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color, ambientReflec,
+                               lights);
+        }
+    }
+    return image;
+}

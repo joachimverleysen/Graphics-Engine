@@ -69,25 +69,19 @@ struct ZBuffData {
 class LineDrawer {
 public:
 
-    void setBackground(img::EasyImage &image, Color &bgColor);
+    static void setBackground(img::EasyImage &image, Color &bgColor);
 
-    vector<Point2D> getPointArray (const Lines2D &lines);
+    static vector<Point2D> getPointArray (const Lines2D &lines);
 
-    img::EasyImage draw2Dlines(Lines2D &lines, const int size, Color &bgColor);;
+    static img::EasyImage draw2Dlines(Lines2D &lines, const int size, Color &bgColor);;
 
-    void draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &color,
-                        ZBuffData zbd);
-
-    void drawZbuffTriangLighted(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B,
-                                const Vector3D &C,
-                                double d, double dx, double dy, Color color, Color ambienReflection,
-                                Color diffuseReflection,
-                                double reflectionCoeff, Lights3D &lights);
+    static void draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &color,
+                               ZBuffData zbd);
 
 
-    Dimensions computeDims(Lines2D &lines, const int size);
+    static Dimensions computeDims(Lines2D &lines, const int size);
 
-    void rescalePoint2D(Point2D &p, double d, double dx, double dy);
+    static void rescalePoint2D(Point2D &p, double d, double dx, double dy);
 
     void drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B, const Vector3D &C,
                          double d, double dx, double dy, Color color);

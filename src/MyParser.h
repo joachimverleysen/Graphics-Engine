@@ -21,15 +21,15 @@ enum SuccessEnum {success, partial, failure};
 class MyParser {
 
 public:
-    SuccessEnum drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawing);
+    static SuccessEnum drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawing);
 
-    MyLSystem2D parse_Lsystem2D(const ini::Configuration &conf);
+    static MyLSystem2D parse_Lsystem2D(const ini::Configuration &conf);
 
-    void parse_lights(const ini::Configuration &conf, Drawing3D &drawing);
+    static void parse_lights(const ini::Configuration &conf, Drawing3D &drawing);
 
-    void parse_figure(Figure &figure, const ini::Configuration &conf, Drawing3D &drawing, const int i);
+    static void parse_figure(Figure &figure, const ini::Configuration &conf, Drawing3D &drawing, const int i);
 
-    void parse_solid3d(Figure &figure, const ini::Configuration &conf, Drawing3D &drawing);
+    static void parse_solid3d(Figure &figure, const ini::Configuration &conf, Drawing3D &drawing);
 };
 
 

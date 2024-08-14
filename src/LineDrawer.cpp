@@ -18,7 +18,8 @@ vector<Point2D> LineDrawer::getPointArray(const Lines2D &lines) {
 
 Dimensions LineDrawer::computeDims(Lines2D &lines, const int size) {
     Dimensions dims;
-    vector<Point2D> points = getPointArray(lines);
+
+    vector<Point2D> points = LineDrawer::getPointArray(lines);  //todo: this func should be in another class
 
 // Compute max values
     for (auto &p : points) {
@@ -57,15 +58,15 @@ void LineDrawer::rescalePoint2D(Point2D& p, double d, double dx, double dy) {
 }
 
 img::EasyImage LineDrawer::draw2Dlines(Lines2D &lines, const int size, Color &bgColor) {
-    Dimensions dims = computeDims(lines, size);
+    Dimensions dims = LineDrawer::computeDims(lines, size);
 
 
     img::EasyImage myImage(dims.width, dims.height);
-    setBackground(myImage, bgColor);
+    LineDrawer::setBackground(myImage, bgColor);
 
     for (Line2D &line : lines) {
-        rescalePoint2D(line.p1, dims.d, dims.dx, dims.dy);
-        rescalePoint2D(line.p2, dims.d, dims.dx, dims.dy);
+        LineDrawer::rescalePoint2D(line.p1, dims.d, dims.dx, dims.dy);
+        LineDrawer::rescalePoint2D(line.p2, dims.d, dims.dx, dims.dy);
 
     }
 
@@ -73,7 +74,7 @@ img::EasyImage LineDrawer::draw2Dlines(Lines2D &lines, const int size, Color &bg
 
     for (auto line : lines) {
 
-        draw_zbuf_line(zBuffer, myImage, line.p1, line.p2, line.color, ZBuffData());
+        LineDrawer::draw_zbuf_line(zBuffer, myImage, line.p1, line.p2, line.color, ZBuffData());
     }
 
     return myImage;
@@ -124,8 +125,6 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
 
     unsigned int width = image.get_width();
     unsigned int height = image.get_height();
-    int Xa = round(min(pt1.x, pt2.x));
-    int Xb = lround(max(pt1.x, pt2.x));
 
     // Check for switching points
 
@@ -405,7 +404,7 @@ Color getDiffuseComponent(Vector3D w, Light li, Color diffReflec) {
 
 }
 
-
+//todo: function should receive projected points as parameters
 void LineDrawer::drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B,
                                  const Vector3D &C,
                                  double d, double dx, double dy, Color color,
@@ -470,73 +469,3 @@ void LineDrawer::drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Ve
 
 
 
-    void LineDrawer::drawZbuffTriangLighted(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B,
-                                        const Vector3D &C,
-                                        double d, double dx, double dy, Color color, Color ambienReflection,
-                                        Color diffuseReflection,
-                                        double reflectionCoeff, Lights3D &lights) {
-
-    double INFTY = std::numeric_limits<double>::infinity();
-    MyTools mt;
-    Point2D a = proj_triag_point(A, d, dx, dy);
-    Point2D b = proj_triag_point(B, d, dx, dy);
-    Point2D c = proj_triag_point(C, d, dx, dy);
-
-
-    ZBuffData zbd = compute_zbuff_data(A, B, C, d, dx, dy);
-
-    int Ymin = std::round(min(min(a.y, b.y), c.y) + 0.5);
-    int Ymax = std::round(max(max(a.y, b.y), c.y) - 0.5);
-
-    double xL_AB, xL_AC, xL_BC, xR_AB, xR_AC, xR_BC;
-    for (int y=min(Ymin, Ymax); y<=max(Ymin, Ymax); y++) {
-        xL_AB = INFTY, xL_AC = INFTY, xL_BC = INFTY;
-        xR_AB = -INFTY, xR_AC = -INFTY, xR_BC = -INFTY;
-        int xL, xR;
-
-        Point2D P = a;
-        Point2D Q = b;
-
-        if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {     // Test for intersection
-            double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
-            xL_AB = Xi;
-            xR_AB = Xi;
-        }
-
-        P = b; Q = c;
-        if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {     // Test for intersection
-            double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
-            xL_BC = Xi;
-            xR_BC = Xi;
-        }
-
-        P = a; Q = c;
-        if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {     // Test for intersection
-            double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
-            xL_AC = Xi;
-            xR_AC = Xi;
-        }
-        xL = round(min(min(xL_AB, xL_AC), xL_BC)+0.5);
-        xR = round(max(max(xR_AB, xR_AC), xR_BC)-0.5);
-        Point2D p1(xL, y);
-        Point2D p2(xR, y);
-        if (p1.y != p2.y || (p1.x==0 && p2.x==0)) return;
-
-        Color resultingColor;
-        for (auto l : lights) {
-            Color ambientComponent = getAmbientComponent(l, ambienReflection);
-            Color diffuseComponent = getDiffuseComponent(zbd.w, l, diffuseReflection);
-            resultingColor = resultingColor+ambientComponent;
-            if (l.diffuse()) resultingColor = resultingColor+diffuseComponent;
-
-        }
-        if (resultingColor.red>255) resultingColor.red = 255;
-        if (resultingColor.green>255) resultingColor.green = 255;
-        if (resultingColor.blue>255) resultingColor.blue = 255;
-
-
-        draw_zbuf_line(zbuffer, img, p1, p2, resultingColor, zbd);
-//            drawLine2D(img, p1, p2, color);
-
-    }
-}

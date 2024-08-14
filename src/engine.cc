@@ -29,104 +29,18 @@
 using namespace std;
 
 
-//void doTransitions(Drawing3D &drawing) {
-//    MyTools mt;
-//    Figures3D figs = drawing.getFigures();
-//    for (auto& fig : figs) {
-//        mt.doTransitions(fig);
-//    }
-//    drawing.setFigures(figs);
-//}
-
-Lines2D do_projection(Figures3D& figures, Vector3D& eye) {
-    MyTools mt;
-    Lines2D result;
-    Figures3D figs = figures;
-    for (Figure &fig : figs) {
-        Transformations::to_eye_system(fig, eye);
-        vector<Point2D> proj_points = Transformations::compute_projected_points(fig);
-        fig.setProjPoints(proj_points);
-        Lines2D  lines;
-        if (fig.getType() == "3DLsystem") {
-            lines = mt.getLineArray2D(fig.getProjPoints(), fig.getColor());
-        }
-        else lines = mt.computeLines(fig);
-        result.insert(result.end(), lines.begin(), lines.end());
-    }
-    return result;
-}
-
 /**
 @brief draws all the figures in the drawing, but with color fill instead of wireframe
 \n Makes use of z-buffer
  */
 
-img::EasyImage zbuffDrawing(Drawing3D &drawing) {
-    // do transformations
-
-    LineDrawer ld;
-    Vector3D eye = drawing.getEye();
-    Figures3D figs = drawing.getFigures();
-    Transformations::apply_transformations(figs);
-    Transformations::to_eye_system(figs, drawing.getEye());
-
-    for (auto& f : figs) {
-        MyTools::triangulateFigure(f);
-    }
-
-    Lines2D lines = do_projection(figs, eye);
-    int size = drawing.getSize();
-
-    Dimensions dim = ld.computeDims(lines, size);
-
-    img::EasyImage image(dim.width, dim.height);
-
-    ZBuffer zbuffer(dim.width, dim.height);
-
-    auto lights = drawing.getLights();
-
-    // Convert direction to eyesystem
-    //todo: optimize
-    for (Light& l : lights) {
-        Vector3D direction = Vector3D::point(0,0,0);
-        direction.x = l.direction.x;
-        direction.y = l.direction.y;
-        direction.z = l.direction.z;
-        Transformations::to_eye_system(direction, eye);
-        l.direction.x = direction.x;
-        l.direction.y = direction.y;
-        l.direction.z = direction.z;
-    }
-//    Transformations::to_eye_system(figs, eye);
-
-    for (auto& f : figs) {
-        Color color = f.getColor();
-        for (auto& face : f.getFaces()) {
-            if (face.point_indexes.size() != 3) {
-                cerr<<"Error - Face is not a triangle\n";
-                exit(1);
-            }
-            Vector3D p1 = f.getPoints()[face.point_indexes[0]];
-            Vector3D p2 = f.getPoints()[face.point_indexes[1]];
-            Vector3D p3 = f.getPoints()[face.point_indexes[2]];
-
-            Color ambientReflec = f.getAmbientReflection();
-
-                ld.drawZbuffTriang(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color, ambientReflec,
-                                          lights);
-        }
-    }
-    return image;
-}
 
 
 img::EasyImage generateImage(const ini::Configuration &conf) {
     img::EasyImage image;
-    MyParser parser;
-    LineDrawer ld;
     MyTools mt;
     Drawing3D drawing;
-    SuccessEnum success_enum = parser.drawing3D_parse(conf, drawing);
+    SuccessEnum success_enum = MyParser::drawing3D_parse(conf, drawing);
     if (success_enum!=success) {
         return image;
     }
@@ -139,11 +53,11 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
         Figures3D figs = drawing.getFigures();
         Transformations::apply_transformations(figs);
         Transformations::to_eye_system(figs, drawing.getEye());
-        Lines2D lines = do_projection(figs, eye);
-        image = ld.draw2Dlines(lines, drawing.getSize(), bgColor);
+        Lines2D lines = Transformations::do_projection(figs);
+        image = LineDrawer::draw2Dlines(lines, drawing.getSize(), bgColor);
     }
     else if (type=="ZBuffering") {
-        image = zbuffDrawing(drawing);
+        image = Drawing3D::zbuffDrawing(drawing);
     }
     else if (type=="Wireframe") {
         Vector3D eye = drawing.getEye();
@@ -152,28 +66,23 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
         Transformations::apply_transformations(figs);
         Transformations::to_eye_system(figs, drawing.getEye());
 
-        Lines2D lines = do_projection(figs, eye);
-        image = ld.draw2Dlines(lines, drawing.getSize(), bgColor);
+        Lines2D lines = Transformations::do_projection(figs);
+        image = LineDrawer::draw2Dlines(lines, drawing.getSize(), bgColor);
     }
     else if (type == "2DLSystem") {
-        MyLSystem2D ls = parser.parse_Lsystem2D(conf);
+        MyLSystem2D ls = MyParser::parse_Lsystem2D(conf);
         Color bgColor = ls.getBgColor();
         vector<Point2D> points;
         ls.computePoints(points);
         ls.setPoints(points);
         Lines2D lines = mt.getLineArray2D(points, ls.getColor());
-        image = ld.draw2Dlines(lines, drawing.getSize(), bgColor);
+        image = LineDrawer::draw2Dlines(lines, drawing.getSize(), bgColor);
     }
     else if (type == "LightedZBuffering") {
-        image = zbuffDrawing(drawing);
+        image = Drawing3D::zbuffDrawing(drawing);
     }
 
 
-
-
-
-
-//    image = ld.draw2Dlines(lines, drawing.getSize(), bgcolor);
     std::ofstream fout("../../out.bmp", std::ios::binary);
     fout << image;
     fout.close();
