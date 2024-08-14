@@ -16,7 +16,7 @@ ini/line_drawings
 ini/wireframes
 ini/wireframes2
 ini/l_systems
-out
+*.bmp
 
 # compressed files
 *tar.gz
