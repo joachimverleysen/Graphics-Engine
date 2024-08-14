@@ -1,8 +1,8 @@
-#include "../tools/easy_image.h"
-#include "../tools/ini_configuration.h"
+#include "tools/easy_image.h"
+#include "tools/ini_configuration.h"
 #include "LineDrawer.h"
 #include "MyLSystem2D.h"
-#include "../tools/vector3d.h"
+#include "tools/vector3d.h"
 #include "Figure.h"
 #include "Drawing3D.h"
 #include "Solid3D.h"
@@ -16,6 +16,14 @@
 #include <vector>
 #include <list>
 #include <cmath>
+
+
+//todo: move extra functions to seperate file
+//todo: logging
+//todo: change project structure, classes...
+//todo: more efficient code
+//todo: error handling
+//todo:
 
 using namespace std;
 
@@ -50,7 +58,6 @@ Lines2D do_projection(Figures3D& figures, Vector3D& eye) {
     }
     return result;
 }
-//todo: move extra functions to seperate file
 
 /**
 @brief draws all the figures in the drawing, but with color fill instead of wireframe
@@ -109,14 +116,10 @@ img::EasyImage zbuffDrawing(Drawing3D &drawing, bool lighted) {
             Vector3D p3 = f.getPoints()[face.point_indexes[2]];
 
             Color ambientReflec = f.getAmbientReflection();
-            Color diffuseReflec = f.getDiffuseReflection();
 
-            if (lighted)
-                ld.drawZbuffTriangLighted(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color, ambientReflec,
-                                          diffuseReflec, 0,
+                ld.drawZbuffTriang(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color, ambientReflec,
                                           lights);
-            else
-                ld.drawZbuffTriang(zbuffer, image, p1, p2, p3, dim.d, dim.dx, dim.dy, color);
+
 
 
         }

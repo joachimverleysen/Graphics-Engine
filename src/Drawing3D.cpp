@@ -77,3 +77,11 @@ const Lights3D &Drawing3D::getLights() const {
 void Drawing3D::setLights(const Lights3D &lights) {
     Drawing3D::lights = lights;
 }
+
+int Drawing3D::getNrLights() const {
+    return nrLights;
+}
+
+void Drawing3D::setNrLights(int nrLights) {
+    Drawing3D::nrLights = nrLights;
+}

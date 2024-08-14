@@ -22,8 +22,15 @@ int nrFigures=0;
 Vector3D eye=Vector3D::point(1,0,0);
 Figures3D figures;
 string lsys_inputfile;
+int nrLights;
+public:
+    int getNrLights() const;
 
-Lights3D lights;
+    void setNrLights(int nrLights);
+
+private:
+
+    Lights3D lights;
 
 public:
     Drawing3D() {};

@@ -6,9 +6,9 @@
 #define MYENGINE_LINEDRAWER_H
 
 
-#include "../tools/easy_image.h"
+#include "tools/easy_image.h"
 #include "ZBuffer.h"
-#include "../tools/vector3d.h"
+#include "tools/vector3d.h"
 #include <list>
 #include <cmath>
 #include "Light.h"
@@ -92,6 +92,12 @@ public:
     void drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B, const Vector3D &C,
                          double d, double dx, double dy, Color color);
 
+    void drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B, const Vector3D &C,
+                         double d, double dx, double dy, Color color, Color ambienReflection, Color diffuseReflection,
+                         double reflectionCoeff, Lights3D &lights);
+
+    void drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B, const Vector3D &C,
+                         double d, double dx, double dy, Color color, Color ambienReflection, Lights3D &lights);
 };
 
 

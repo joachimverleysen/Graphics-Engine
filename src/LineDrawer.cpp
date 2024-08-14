@@ -168,6 +168,9 @@ LineDrawer::draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1
         for (int j = y0; j <= y1; j++) {
             inv_z = compute_1_on_z_WF(z0, z1, a - j + y0, a);
 
+            if (i<0 || i>width || j<0 || j>height) {
+                throw std::out_of_range("Out of range error");
+            }
             if (i == x0) {
                     if (inv_z > zbuffer[i][j]) continue;
                     zbuffer[i][j] = inv_z;
@@ -348,58 +351,6 @@ ZBuffData compute_zbuff_data(const Vector3D A, const Vector3D B, const Vector3D 
 }
 
 
-
-
-void LineDrawer::drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B,
-                                 const Vector3D &C,
-                                 double d, double dx, double dy, Color color) {
-
-    double INFTY = std::numeric_limits<double>::infinity();
-    Point2D a = proj_triag_point(A, d, dx, dy);
-    Point2D b = proj_triag_point(B, d, dx, dy);
-    Point2D c = proj_triag_point(C, d, dx, dy);
-
-
-    ZBuffData zbd = compute_zbuff_data(A, B, C, d, dx, dy);
-
-    int Ymin = static_cast<int>(std::round(min(min(a.y, b.y), c.y) + 0.5));
-    int Ymax = static_cast<int>(std::round(max(max(a.y, b.y), c.y) - 0.5));
-
-    for (int y=Ymin; y<=Ymax; y++) {
-
-        double xL = INFTY, xR = -INFTY;
-        auto updateBounds = [&](const Point2D &P, const Point2D &Q) {
-            if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {
-                double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
-                xL = std::min(xL, Xi);
-                xR = std::max(xR, Xi);
-            }
-        };
-
-        updateBounds(a, b);
-        updateBounds(b, c);
-        updateBounds(c, a);
-
-        if (xL == INFTY && xR == -INFTY) {
-            throw std::invalid_argument("Bounds didn't update correctly");
-        }
-            int xLint = round(xL+0.5);
-            int xRint = round(xR-0.5);
-
-        for (int x = xLint; x <= xRint; ++x) {
-
-            double inv_z = 1.0001 * zbd.one_on_zG + (x - zbd.xG) * zbd.dzdx + (y - zbd.yG) * zbd.dzdy;
-            if (inv_z > zbuffer[x][y]) continue;
-
-            zbuffer[x][y] = inv_z;
-            img(x, y).red = color.red;
-            img(x, y).green = color.green;
-            img(x, y).blue = color.blue;
-        }
-
-    }
-}
-
 Color getAmbientComponent(Light l, Color ambientReflec) {
     double redPCT=0;  // Percentage value
     double bluePCT=0;  // Percentage value
@@ -454,6 +405,70 @@ Color getDiffuseComponent(Vector3D w, Light li, Color diffReflec) {
     return result;
 
 }
+
+
+void LineDrawer::drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B,
+                                 const Vector3D &C,
+                                 double d, double dx, double dy, Color color,
+                                 Color ambienReflection,
+                                 Lights3D &lights) {
+
+    double INFTY = std::numeric_limits<double>::infinity();
+    Point2D a = proj_triag_point(A, d, dx, dy);
+    Point2D b = proj_triag_point(B, d, dx, dy);
+    Point2D c = proj_triag_point(C, d, dx, dy);
+
+
+    ZBuffData zbd = compute_zbuff_data(A, B, C, d, dx, dy);
+
+    int Ymin = static_cast<int>(std::round(min(min(a.y, b.y), c.y) + 0.5));
+    int Ymax = static_cast<int>(std::round(max(max(a.y, b.y), c.y) - 0.5));
+
+    for (int y=Ymin; y<=Ymax; y++) {
+
+        double xL = INFTY, xR = -INFTY;
+        auto updateBounds = [&](const Point2D &P, const Point2D &Q) {
+            if ((y - P.y) * (y - Q.y) <= 0 && P.y != Q.y) {
+                double Xi = Q.x + (P.x - Q.x) * ((y - Q.y) / (P.y - Q.y));
+                xL = std::min(xL, Xi);
+                xR = std::max(xR, Xi);
+            }
+        };
+
+        updateBounds(a, b);
+        updateBounds(b, c);
+        updateBounds(c, a);
+
+        Color resultingColor = color;
+        for (auto l : lights) {
+            Color ambientComponent = getAmbientComponent(l, ambienReflection);
+            resultingColor = resultingColor+ambientComponent;
+
+        }
+        if (resultingColor.red>255) resultingColor.red = 255;
+        if (resultingColor.green>255) resultingColor.green = 255;
+        if (resultingColor.blue>255) resultingColor.blue = 255;
+
+        if (xL == INFTY && xR == -INFTY) {
+            throw std::invalid_argument("Bounds didn't update correctly");
+        }
+            int xLint = round(xL+0.5);
+            int xRint = round(xR-0.5);
+
+        for (int x = xLint; x <= xRint; ++x) {
+
+            double inv_z = 1.0001 * zbd.one_on_zG + (x - zbd.xG) * zbd.dzdx + (y - zbd.yG) * zbd.dzdy;
+            if (inv_z > zbuffer[x][y]) continue;
+
+            zbuffer[x][y] = inv_z;
+            img(x, y).red = resultingColor.red;
+            img(x, y).green = resultingColor.green;
+            img(x, y).blue = resultingColor.blue;
+        }
+
+    }
+}
+
 
 
     void LineDrawer::drawZbuffTriangLighted(ZBuffer &zbuffer, img::EasyImage &img, const Vector3D &A, const Vector3D &B,

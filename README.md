@@ -18,10 +18,10 @@ X: Niet werkend of niet geïmplementeerd
 |   | Kegel en cylinder         | V      |
 |   | Bol                       | V      |
 |   | Torus                     | V      |
-|   | 3D L-systemen             |        |
-| 4 | Z-buffering (lijnen)      | -      |
+|   | 3D L-systemen             | V      |
+| 4 | Z-buffering (lijnen)      | V      |
 | 5 | Triangulatie              | V      |
-|   | Z-buffering (driehoeken)  | -      |
+|   | Z-buffering (driehoeken)  | V      |
 | 6 | 3D fractalen              | V      |
 |   | BuckyBall                 |        |
 |   | Mengerspons               |        |

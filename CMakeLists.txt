@@ -11,20 +11,22 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${OWN_GXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OWN_GXX_FLAGS}")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${OWN_GXX_FLAGS}")
 
+include_directories(src/tools)
+
 ############################################################
 # List all sources
 ############################################################
 set(engine_sources
-		tools/easy_image.cc
+		src/tools/easy_image.cc
 		src/engine.cc
-		tools/ini_configuration.cc
+		src/tools/ini_configuration.cc
 		src/LineDrawer.cpp
 		src/LineDrawer.h
-		tools/l_parser.h
-		tools/l_parser.cc
+		src/tools/l_parser.h
+		src/tools/l_parser.cc
 		src/MyLSystem2D.cpp
 		src/MyLSystem2D.h
-		tools/vector3d.cc
+		src/tools/vector3d.cc
 		src/Figure.cpp
 		src/Figure.h
 		src/Drawing3D.cpp

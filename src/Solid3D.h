@@ -16,6 +16,13 @@
 
 class Solid3D {
 private:
+    int n;
+    double h;
+    double r;
+    double R;
+    double m;
+    int nr_iterations;
+    double scale;
 
 public:
     void generateCube(Figure& fig);

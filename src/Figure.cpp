@@ -125,3 +125,13 @@ void Figure::setType(const string &type) {
     Figure::type = type;
 }
 
+const string &Figure::getName() const {
+    return name;
+}
+
+void Figure::setName(const string &name) {
+    Figure::name = name;
+}
+
+
+

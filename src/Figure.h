@@ -5,7 +5,7 @@
 #ifndef MYENGINE_FIGURE_H
 #define MYENGINE_FIGURE_H
 #include "MyTools.h"
-#include "../tools/vector3d.h"
+#include "tools/vector3d.h"
 #include <vector>
 using std::vector;
 
@@ -34,6 +34,14 @@ class Figure {
     int nrIterations;
     double fractalscale;
     string type;
+    string name;
+
+
+public:
+    const string &getName() const;
+
+    void setName(const string &name);
+
 public:
     const string &getType() const;
 
