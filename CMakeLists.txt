@@ -43,6 +43,9 @@ set(engine_sources
 		src/Light.h
 		src/Color.cpp
 		src/Color.h
+		src/FigureParser.cpp
+		src/LightParser.cpp
+		src/Lsystem2D_parser.cpp
 )
 
 ############################################################

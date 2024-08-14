@@ -23,7 +23,7 @@
 //todo: change project structure, classes...
 //todo: more efficient code
 //todo: error handling
-//todo:
+//todo: remove using namespace std
 
 using namespace std;
 
@@ -159,7 +159,10 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
     LineDrawer ld;
     MyTools mt;
     Drawing3D drawing;
-    parser.drawing3D_parse(conf, drawing);
+    SuccessEnum success_enum = parser.drawing3D_parse(conf, drawing);
+    if (success_enum!=success) {
+        return image;
+    }
     string type = drawing.getType();
 
     if (type=="ZBufferedWireframe") {
@@ -183,7 +186,7 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
         image = ld.draw2Dlines(lines, drawing.getSize(), bgColor);
     }
     else if (type == "2DLSystem") {
-        MyLSystem2D ls = parser.lsys_parse(conf);
+        MyLSystem2D ls = parser.parse_Lsystem2D(conf);
         Color bgColor = ls.getBgColor();
         vector<Point2D> points;
         ls.computePoints(points);
@@ -202,7 +205,7 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
 
 
 //    image = ld.draw2Dlines(lines, drawing.getSize(), bgcolor);
-    std::ofstream fout("../out.bmp", std::ios::binary);
+    std::ofstream fout("../../out.bmp", std::ios::binary);
     fout << image;
     fout.close();
     return image;

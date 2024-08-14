@@ -14,12 +14,16 @@
 /**
  * This class parses ini
  */
+
+enum SuccessEnum {success, partial, failure};
+
+
 class MyParser {
 
 public:
-    void drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawing);
+    SuccessEnum drawing3D_parse(const ini::Configuration &conf, Drawing3D &drawing);
 
-    MyLSystem2D lsys_parse(const ini::Configuration &conf);
+    MyLSystem2D parse_Lsystem2D(const ini::Configuration &conf);
 
     void parse_lights(const ini::Configuration &conf, Drawing3D &drawing);
 

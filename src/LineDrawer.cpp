@@ -71,7 +71,6 @@ img::EasyImage LineDrawer::draw2Dlines(Lines2D &lines, const int size, Color &bg
 
     ZBuffer zBuffer(dims.width, dims.height);
 
-    cout<<"Drawing "<<lines.size()<<" "<<"lines. Check 'out.bmp'"<<endl;
     for (auto line : lines) {
 
         draw_zbuf_line(zBuffer, myImage, line.p1, line.p2, line.color, ZBuffData());
