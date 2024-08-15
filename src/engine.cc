@@ -10,12 +10,6 @@
 #include <vector>
 #include <list>
 
-//todo: logging
-//todo: more efficient code
-//todo: error handling
-//todo: every throw needs a catch
-//todo delete MyTools class
-
 
 img::EasyImage generateImage(const ini::Configuration &conf) {
     img::EasyImage image;
@@ -32,8 +26,6 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
     fout.close();
     return image;
 }
-
-
 
 int main(int argc, char const* argv[])
 {

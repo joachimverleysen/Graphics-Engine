@@ -49,7 +49,6 @@ public:
 
     void setType(const std::string &type);
 
-    // todo: use this every time
 public:
     double getFractalscale() const;
 

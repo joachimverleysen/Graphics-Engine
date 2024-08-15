@@ -158,7 +158,7 @@ void MyLSystem3D::_str2Points(const std::string &str) {
     setPoints(_points);
 }
 
-//todo: combine lsystem3d and 2d
+//todo: combine lsystem3d and 2d in one func
 
 void MyLSystem3D::applyReplacement(std::string &s) {
     std::string str_new;

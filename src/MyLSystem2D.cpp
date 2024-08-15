@@ -220,7 +220,3 @@ unsigned int MyLSystem2D::getIterations() const {
 void MyLSystem2D::setIterations(unsigned int iterations) {
     MyLSystem2D::iterations = iterations;
 }
-
-
-
-

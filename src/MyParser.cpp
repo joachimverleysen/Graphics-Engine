@@ -90,6 +90,5 @@ SuccessEnum MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D 
     }
     return success;
 
-
 }
 

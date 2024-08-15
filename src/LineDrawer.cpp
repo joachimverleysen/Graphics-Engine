@@ -425,6 +425,3 @@ void LineDrawer::drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Ve
 
     }
 }
-
-
-

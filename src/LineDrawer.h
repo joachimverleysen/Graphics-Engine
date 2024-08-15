@@ -57,8 +57,6 @@ struct ZBuffData {
     Vector3D w;
 };
 
-
-
 class LineDrawer {
 public:
 
@@ -70,7 +68,6 @@ public:
 
     static void draw_zbuf_line(ZBuffer &zbuffer, img::EasyImage &image, Point2D &pt1, Point2D &pt2, Color &color,
                                ZBuffData zbd);
-
 
     static Dimensions computeDims(Lines2D &lines, const int size);
 
