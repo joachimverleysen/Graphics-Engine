@@ -61,9 +61,9 @@ SuccessEnum MyParser::drawing3D_parse(const ini::Configuration &conf, Drawing3D 
     for (int i = 0; i < nrFigures; i++) {
         Figure figure;
         figure.setSize(size);
-        string figname = "Figure" + to_string(i);
+        std::string figname = "Figure" + std::to_string(i);
 
-        string figtype = conf[figname]["type"].as_string_or_die();
+        std::string figtype = conf[figname]["type"].as_string_or_die();
         auto it = std::find(supported_figures.begin(), supported_figures.end(), figtype);
         if (it==supported_figures.end()) {
             return failure;

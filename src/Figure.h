@@ -33,19 +33,19 @@ class Figure {
 
     int nrIterations;
     double fractalscale;
-    string type;
-    string name;
+    std::string type;
+    std::string name;
 
 
 public:
-    const string &getName() const;
+    const std::string &getName() const;
 
-    void setName(const string &name);
+    void setName(const std::string &name);
 
 public:
-    const string &getType() const;
+    const std::string &getType() const;
 
-    void setType(const string &type);
+    void setType(const std::string &type);
 
     // todo: use this every time
 public:

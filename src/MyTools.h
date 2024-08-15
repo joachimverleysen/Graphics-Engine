@@ -28,7 +28,7 @@ public:
 
     static Lines2D computeLines(Figure &fig);
 
-    static Lines2D getLineArray2D(const vector<Point2D> &points, Color col);
+    static Lines2D getLineArray2D(const std::vector<Point2D> &points, Color col);
 
     static void triangulateFigure(Figure &fig);
 

@@ -6,8 +6,8 @@
 #include "MyTools.h"
 #include <fstream>
 
-vector<Point2D> LineDrawer::getPointArray(const Lines2D &lines) {
-    vector<Point2D> result;
+std::vector<Point2D> LineDrawer::getPointArray(const Lines2D &lines) {
+    std::vector<Point2D> result;
     for (auto line : lines) {
         result.push_back(line.p1);
         result.push_back(line.p2);
@@ -19,20 +19,20 @@ vector<Point2D> LineDrawer::getPointArray(const Lines2D &lines) {
 Dimensions LineDrawer::computeDims(Lines2D &lines, const int size) {
     Dimensions dims;
 
-    vector<Point2D> points = LineDrawer::getPointArray(lines);  //todo: this func should be in another class
+    std::vector<Point2D> points = LineDrawer::getPointArray(lines);  //todo: this func should be in another class
 
 // Compute max values
     for (auto &p : points) {
 
-        dims.Xmax= max(dims.Xmax, p.x);
-        dims.Xmin = min(dims.Xmin, p.x);
-        dims.Ymax = max(dims.Ymax, p.y);
-        dims.Ymin = min(dims.Ymin, p.y);
+        dims.Xmax= std::max(dims.Xmax, p.x);
+        dims.Xmin = std::min(dims.Xmin, p.x);
+        dims.Ymax = std::max(dims.Ymax, p.y);
+        dims.Ymin = std::min(dims.Ymin, p.y);
     }
     dims.xRange = dims.Xmax-dims.Xmin;
     dims.yRange = dims.Ymax-dims.Ymin;
-    dims.imgX = size * (dims.xRange/max(dims.xRange, dims.yRange));
-    dims.imgY = size * (dims.yRange / max(dims.xRange, dims.yRange));
+    dims.imgX = size * (dims.xRange/std::max(dims.xRange, dims.yRange));
+    dims.imgY = size * (dims.yRange / std::max(dims.xRange, dims.yRange));
     dims.d = 0.95 * (dims.imgX/dims.xRange);    // scale factor
 
     dims.DCx = dims.d* ((dims.Xmin + dims.Xmax)/2);
@@ -51,9 +51,7 @@ void LineDrawer::rescalePoint2D(Point2D& p, double d, double dx, double dy) {
     // Verschuiven door offset (dx, dy) op te tellen
     p.x += dx;
     p.y += dy;
-    // afronden
-  /*  p.x = round(p.x);
-    p.y = round(p.y);*/
+
 
 }
 
@@ -419,8 +417,8 @@ void LineDrawer::drawZbuffTriang(ZBuffer &zbuffer, img::EasyImage &img, const Ve
 
     ZBuffData zbd = compute_zbuff_data(A, B, C, d, dx, dy);
 
-    int Ymin = static_cast<int>(std::round(min(min(a.y, b.y), c.y) + 0.5));
-    int Ymax = static_cast<int>(std::round(max(max(a.y, b.y), c.y) - 0.5));
+    int Ymin = static_cast<int>(std::round(std::min(std::min(a.y, b.y), c.y) + 0.5));
+    int Ymax = static_cast<int>(std::round(std::max(std::max(a.y, b.y), c.y) - 0.5));
 
     for (int y=Ymin; y<=Ymax; y++) {
 

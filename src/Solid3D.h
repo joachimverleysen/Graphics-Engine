@@ -15,14 +15,8 @@
  */
 
 class Solid3D {
-private:
-    int n;
-    double h;
-    double r;
-    double R;
-    double m;
-    int nr_iterations;
-    double scale;
+
+    //todo: make these static
 
 public:
     void generateCube(Figure& fig);

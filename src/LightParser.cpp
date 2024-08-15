@@ -5,9 +5,6 @@
 #include "tools/ini_configuration.h"
 #include "Drawing3D.h"
 #include "LineDrawer.h"
-#include "Solid3D.h"
-#include "MyLSystem2D.h"
-#include "MyLSystem3D.h"
 #include "Light.h"
 
 
@@ -17,7 +14,7 @@ void MyParser::parse_lights(const ini::Configuration &conf, Drawing3D &drawing) 
     for (int i=0; i!=drawing.getNrLights(); i++) {
         Light light;
 
-        string lightname = "Light" + to_string(i);
+        std::string lightname = "Light" + std::to_string(i);
         vector<double> ambient = conf[lightname]["ambientLight"].as_double_tuple_or_default({0, 0, 0});
         vector<double> diffuse = conf[lightname]["diffuseLight"].as_double_tuple_or_default({0, 0, 0});
 //        vector<double> specular = conf[lightname]["specular"].as_double_tuple_or_default({0, 0, 0});

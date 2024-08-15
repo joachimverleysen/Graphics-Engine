@@ -1,10 +1,8 @@
 #include "easy_image.h"
 #include "LineDrawer.h"
 #include "Figure.h"
-#include "../tools/vector3d.h"
 #include <string>
 #include <vector>
-#include <iostream>
 #include "Light.h"
 #include "Transformations.h"
 #include "ini_configuration.h"
@@ -15,7 +13,7 @@
 // Created by joachimverleysen on 8/15/24.
 //
 void Drawing3D::dispatch_drawing_by_type(Drawing3D &drawing, const ini::Configuration &conf, img::EasyImage &image) {
-    string type = drawing.getType();
+    std::string type = drawing.getType();
     if (type=="ZBufferedWireframe") {
         Vector3D eye = drawing.getEye();
         Color bgColor = drawing.getBgColor();

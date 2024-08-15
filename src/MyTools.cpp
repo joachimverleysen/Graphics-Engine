@@ -5,7 +5,6 @@
 #include "MyTools.h"
 #include "LineDrawer.h"
 #include "Figure.h"
-#include "Transformations.h"
 
 
 Lines2D MyTools::getLineArray2D(const vector<Point2D> &points, Color col) {

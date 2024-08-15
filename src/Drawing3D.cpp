@@ -12,11 +12,11 @@ void Drawing3D::setSize(int size) {
     Drawing3D::size = size;
 }
 
-const string &Drawing3D::getType() const {
+const std::string &Drawing3D::getType() const {
     return type;
 }
 
-void Drawing3D::setType(const string &type) {
+void Drawing3D::setType(const std::string &type) {
     Drawing3D::type = type;
 }
 
@@ -129,7 +129,7 @@ img::EasyImage Drawing3D::zbuffDrawing(Drawing3D &drawing) {
         Color color = f.getColor();
         for (auto& face : f.getFaces()) {
             if (face.point_indexes.size() != 3) {
-                cerr<<"Error - Face is not a triangle\n";
+                std::cerr<<"Error - Face is not a triangle\n";
                 exit(1);
             }
             Vector3D p1 = f.getPoints()[face.point_indexes[0]];

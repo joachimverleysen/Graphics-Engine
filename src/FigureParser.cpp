@@ -7,14 +7,13 @@
 #include "Drawing3D.h"
 #include "LineDrawer.h"
 #include "Solid3D.h"
-#include "MyLSystem2D.h"
 #include "MyLSystem3D.h"
 #include "Light.h"
 
 
 void MyParser::parse_solid3d(Figure &figure, const ini::Configuration &conf, Drawing3D &drawing) {
     Solid3D solid3D;
-    string figname = figure.getName();
+    std::string figname = figure.getName();
     int n = conf[figname]["n"].as_int_or_default(0);
     double height = conf[figname]["height"].as_double_or_default(0);
     double r = conf[figname]["r"].as_double_or_default(0);
@@ -50,9 +49,9 @@ void MyParser::parse_solid3d(Figure &figure, const ini::Configuration &conf, Dra
 
 }
 void MyParser::parse_figure(Figure &figure, const ini::Configuration &conf, Drawing3D &drawing, const int i) {
-    string figname = "Figure" + to_string(i);
+    std::string figname = "Figure" + std::to_string(i);
 
-    string figType = conf[figname]["type"].as_string_or_die();
+    std::string figType = conf[figname]["type"].as_string_or_die();
 
 
     vector<double> color = conf[figname]["color"].as_double_tuple_or_default({0,0,0});
@@ -93,7 +92,7 @@ void MyParser::parse_figure(Figure &figure, const ini::Configuration &conf, Draw
     //POINTS
     vector<Vector3D> points;
     for (int i = 0; i < nrPoints; i++) {
-        string pntname = "point" + to_string(i);
+        std::string pntname = "point" + std::to_string(i);
         vector<double> _pt = conf[figname][pntname].as_double_tuple_or_die();
         Vector3D point = Vector3D::point(_pt[0], _pt[1], _pt[2]);
         points.push_back(point);
@@ -101,7 +100,7 @@ void MyParser::parse_figure(Figure &figure, const ini::Configuration &conf, Draw
     //LINES
     vector<Face> faces;
     for (int i = 0; i < nrLines; i++) {
-        string linename = "line" + to_string(i);
+        std::string linename = "line" + std::to_string(i);
         vector<int> line = conf[figname][linename].as_int_tuple_or_die();
         Face face;
         face.point_indexes = line;
@@ -109,7 +108,7 @@ void MyParser::parse_figure(Figure &figure, const ini::Configuration &conf, Draw
 
     }
 
-    string lsys_inputfile = conf[figname]["inputfile"].as_string_or_default("");
+    std::string lsys_inputfile = conf[figname]["inputfile"].as_string_or_default("");
 
     if (figure.getType() == "3DLSystem") {
         MyLSystem3D lsys(lsys_inputfile);

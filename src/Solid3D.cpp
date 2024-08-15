@@ -7,7 +7,7 @@
 #include "math.h"
 
 void Solid3D::generateCube(Figure &fig) {
-    pair<int, int> face_indxs_dims(6, 4);
+    std::pair<int, int> face_indxs_dims(6, 4);
     int pointArr[8][3] = {
         {1,-1,-1},
         {-1,1,-1},
@@ -49,7 +49,7 @@ void Solid3D::generateCube(Figure &fig) {
 }
 
 void Solid3D::generateTetrahedron(Figure &fig) {
-    pair<int, int> face_indxs_dims(4,3);
+    std::pair<int, int> face_indxs_dims(4,3);
     int pointArr[4][3] = {
             {1,-1,-1},
             {-1,1,-1},
@@ -89,7 +89,7 @@ void Solid3D::generateTetrahedron(Figure &fig) {
 }
 
 void Solid3D::generateOctahedron(Figure &fig) {
-    pair<int, int> face_indxs_dims(8,3);
+    std::pair<int, int> face_indxs_dims(8,3);
     int pointArr[6][3] = {
             {1,0,0},
             {0,1,0},
@@ -134,7 +134,7 @@ void Solid3D::generateOctahedron(Figure &fig) {
 
 
 void Solid3D::generateIcosahedron(Figure &fig) {
-    pair<int, int> face_indxs_dims(20,3);
+    std::pair<int, int> face_indxs_dims(20,3);
     double pointArr[12][3];
     for (int i=1; i<13; i++) {
         double x=0; double y=0; double z=0;
@@ -220,13 +220,12 @@ Vector3D computeMiddlePoint(Vector3D &p1, Vector3D &p2, Vector3D &p3) {
 }
 
 void Solid3D::generateDodecahedron(Figure &fig) {
-    pair<int, int> face_indxs_dims(12,5);
+    std::pair<int, int> face_indxs_dims(12,5);
     generateIcosahedron(fig);
     vector<Vector3D> points;
     for (auto f : fig.getFaces()) {
             if (f.point_indexes.size() != 3){
-                cerr<<"error\n";
-                continue;
+                throw std::out_of_range("Out of range error");
             }
             Vector3D p1 = fig.getPoints()[f.point_indexes[0]];
             Vector3D p2 = fig.getPoints()[f.point_indexes[1]];
@@ -290,8 +289,7 @@ void Solid3D::generateSphere(Figure &fig, const int n) {
             vector<int> indexes = face.point_indexes;
 
             if (indexes.size() != 3) {
-                cerr<<"error\n";
-                continue;
+                throw std::out_of_range("Out of range error");
             }
             Vector3D A = points[indexes[0]];
             Vector3D B = points[indexes[1]];

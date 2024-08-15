@@ -7,7 +7,7 @@
 #include "../tools/vector3d.h"
 
 
-void MyLSystem3D::setAlphabet(const set<char> &alphabet) {
+void MyLSystem3D::setAlphabet(const std::set<char> &alphabet) {
     MyLSystem3D::alphabet = alphabet;
 }
 
@@ -15,7 +15,7 @@ void MyLSystem3D::setAngle(double angle) {
     Angle = angle;
 }
 
-void MyLSystem3D::setInitiator(const string &initiator) {
+void MyLSystem3D::setInitiator(const std::string &initiator) {
     MyLSystem3D::initiator = initiator;
 }
 
@@ -23,7 +23,7 @@ void MyLSystem3D::setStartingAngle(double startingAngle) {
     starting_angle = startingAngle;
 }
 
-int MyLSystem3D::parser(string inputfile) {
+int MyLSystem3D::parser(std::string inputfile) {
     LParser::LSystem3D l_system;
     std::ifstream input_stream(inputfile);
     input_stream >> l_system;
@@ -59,7 +59,7 @@ struct State3D {
 };
 
 
-void MyLSystem3D::_str2Points(const string &str) {
+void MyLSystem3D::_str2Points(const std::string &str) {
     vector<Vector3D> _points;
     vector<Face> _faces;
     double angle=starting_angle;
@@ -160,8 +160,8 @@ void MyLSystem3D::_str2Points(const string &str) {
 
 //todo: combine lsystem3d and 2d
 
-void MyLSystem3D::applyReplacement(string &s) {
-    string str_new;
+void MyLSystem3D::applyReplacement(std::string &s) {
+    std::string str_new;
     for (char c : s) {
         if (c == '+') str_new+='+';
         else if (c == '-') str_new+='-';
@@ -182,9 +182,9 @@ void MyLSystem3D::applyReplacement(string &s) {
 
 void MyLSystem3D::computePoints() {
     // Creates _points-vector based off the initiator string, applying the replacement rules <iterations> times
-    string s = initiator;
+    std::string s = initiator;
     for (unsigned int i=0; i<iterations; i++) {
-        string str_new;
+        std::string str_new;
         applyReplacement(s);
     }
     _str2Points(s);

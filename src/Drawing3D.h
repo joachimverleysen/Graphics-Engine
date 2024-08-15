@@ -15,16 +15,15 @@
 #include "Transformations.h"
 #include "ini_configuration.h"
 
-using namespace std;
 
 class Drawing3D {
 int size = 768;
-string type;
+std::string type;
 Color bgColor=Color(0,0,0);
 int nrFigures=0;
 Vector3D eye=Vector3D::point(1,0,0);
 Figures3D figures;
-string lsys_inputfile;
+std::string lsys_inputfile;
 int nrLights;
 public:
     int getNrLights() const;
@@ -38,7 +37,7 @@ private:
 public:
     Drawing3D() {};
 
-    Drawing3D(int size, const string &type, int nrFigures) :
+    Drawing3D(int size, const std::string &type, int nrFigures) :
     size(size), type(type), nrFigures(nrFigures) {};
 
     void addFigure(Figure &fig);
@@ -52,9 +51,9 @@ public:
 
     void setSize(int size);
 
-    const string &getType() const;
+    const std::string &getType() const;
 
-    void setType(const string &type);
+    void setType(const std::string &type);
 
     const Color &getBgColor() const;
 

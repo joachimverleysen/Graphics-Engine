@@ -5,7 +5,7 @@
 #include "MyLSystem2D.h"
 #include "../tools/l_parser.h"
 
-int MyLSystem2D::parser(string inputfile) {
+int MyLSystem2D::parser(std::string inputfile) {
     LParser::LSystem2D l_system;
     std::ifstream input_stream(inputfile);
     input_stream >> l_system;
@@ -14,7 +14,7 @@ int MyLSystem2D::parser(string inputfile) {
     setAngle(l_system.get_angle()* (M_PI / 180));   // Conversion to radians
     setStartingAngle(l_system.get_starting_angle() * (M_PI / 180));  // Conversion to radians
     if (l_system.get_starting_angle() < 0 ) {
-//        cout<<"angle<0"<<endl;
+//        cout<<"angle<0"<< std::endl;
     }
     setInitiator(l_system.get_initiator());
     l_system.get_alphabet();
@@ -31,7 +31,7 @@ int MyLSystem2D::parser(string inputfile) {
     return 0;
 }
 
-void MyLSystem2D::setAlphabet(const set<char> &alphabet) {
+void MyLSystem2D::setAlphabet(const std::set<char> &alphabet) {
     MyLSystem2D::alphabet = alphabet;
 }
 
@@ -39,7 +39,7 @@ void MyLSystem2D::setAngle(double angle) {
     MyLSystem2D::Angle = angle;
 }
 
-void MyLSystem2D::setInitiator(const string &initiator) {
+void MyLSystem2D::setInitiator(const std::string &initiator) {
     MyLSystem2D::initiator = initiator;
 }
 
@@ -47,17 +47,17 @@ void MyLSystem2D::setStartingAngle(double startingAngle) {
     starting_angle = startingAngle;
 }
 
-typedef pair<Point2D, double> State;
+typedef std::pair<Point2D, double> State;
 
 
 
-void MyLSystem2D::_str2Points(const string &str, vector<Point2D> &points) {
+void MyLSystem2D::_str2Points(const std::string &str, std::vector<Point2D> &points) {
     double angle=starting_angle;
     Point2D currPos(0, 0);
     State currState(currPos, starting_angle);
-    vector<State> stack;
+    std::vector<State> stack;
 
-    // Converts the initiator string to a vector of _points
+    // Converts the initiator std::string to a vector of _points
     for (char c : str) {
             if (c == '+') {
                 currState.second += Angle;
@@ -75,7 +75,7 @@ void MyLSystem2D::_str2Points(const string &str, vector<Point2D> &points) {
                 stack.pop_back();
             }
             else if (alphabet.find(c) == alphabet.end()) {
-                cerr<<"Undefined char"<<endl;
+                std::cerr<<"Undefined char"<< std::endl;
             }
             else  {
                 Point2D nextPt = _computeNextPoint(currState.first, currState.second);
@@ -100,48 +100,48 @@ Point2D MyLSystem2D::_computeNextPoint(Point2D &p1, double angle) {
 }
 
 
-void MyLSystem2D::applyReplacement(string &s) {
-    string str_new;
+void MyLSystem2D::applyReplacement(std::string &s) {
+    std::string str_new;
     for (char c : s) {
         if (c == '+') str_new+='+';
         else if (c == '-') str_new+='-';
         else if (c == '(') str_new+='(';
         else if (c == ')') str_new+=')';
-        else if (alphabet.find(c) == alphabet.end()) cerr<<"Undefined char"<<endl;
+        else if (alphabet.find(c) == alphabet.end()) std::cerr<<"Undefined char"<< std::endl;
         else str_new += rules[c];
     }
     s = str_new;
 }
 
-void MyLSystem2D::computePoints(vector<Point2D> &points) {
-    // Creates _points-vector based off the initiator string, applying the replacement rules <iterations> times
-    string s = initiator;
+void MyLSystem2D::computePoints(std::vector<Point2D> &points) {
+    // Creates _points-vector based off the initiator std::string, applying the replacement rules <iterations> times
+    std::string s = initiator;
     for (unsigned int i=0; i<iterations; i++) {
-        string str_new;
+        std::string str_new;
         applyReplacement(s);
     }
     _str2Points(s, points);
 }
 
-void MyLSystem2D::setPoints(const vector<Point2D> &points) {
+void MyLSystem2D::setPoints(const std::vector<Point2D> &points) {
     MyLSystem2D::points = points;
 }
 
-vector<Point2D> const MyLSystem2D::getPoints() {
-    vector<Point2D> result;
+std::vector<Point2D> const MyLSystem2D::getPoints() {
+    std::vector<Point2D> result;
     computePoints(result);
     return result;
 }
 
-const string &MyLSystem2D::getInputfile() const {
+const std::string &MyLSystem2D::getInputfile() const {
     return inputfile;
 }
 
-void MyLSystem2D::setInputfile(const string &inputfile) {
+void MyLSystem2D::setInputfile(const std::string &inputfile) {
     MyLSystem2D::inputfile = inputfile;
 }
 
-const set<char> &MyLSystem2D::getAlphabet() const {
+const std::set<char> &MyLSystem2D::getAlphabet() const {
     return alphabet;
 }
 
@@ -149,7 +149,7 @@ double MyLSystem2D::getAngle() const {
     return Angle;
 }
 
-const string &MyLSystem2D::getInitiator() const {
+const std::string &MyLSystem2D::getInitiator() const {
     return initiator;
 }
 
@@ -157,19 +157,19 @@ double MyLSystem2D::getStartingAngle() const {
     return starting_angle;
 }
 
-const string &MyLSystem2D::getFinalString() const {
+const std::string &MyLSystem2D::getFinalString() const {
     return finalString;
 }
 
-void MyLSystem2D::setFinalString(const string &finalString) {
+void MyLSystem2D::setFinalString(const std::string &finalString) {
     MyLSystem2D::finalString = finalString;
 }
 
-const map<char, int> &MyLSystem2D::getDrawFunction() const {
+const std::map<char, int> &MyLSystem2D::getDrawFunction() const {
     return drawFunction;
 }
 
-void MyLSystem2D::setDrawFunction(const map<char, int> &drawFunction) {
+void MyLSystem2D::setDrawFunction(const std::map<char, int> &drawFunction) {
     MyLSystem2D::drawFunction = drawFunction;
 }
 
@@ -181,11 +181,11 @@ void MyLSystem2D::setLines(const Lines2D &lines) {
     MyLSystem2D::lines = lines;
 }
 
-const map<char, string> &MyLSystem2D::getRules() const {
+const std::map<char, std::string> &MyLSystem2D::getRules() const {
     return rules;
 }
 
-void MyLSystem2D::setRules(const map<char, string> &rules) {
+void MyLSystem2D::setRules(const std::map<char, std::string> &rules) {
     MyLSystem2D::rules = rules;
 }
 

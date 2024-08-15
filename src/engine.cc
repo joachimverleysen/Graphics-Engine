@@ -1,31 +1,21 @@
 #include "tools/easy_image.h"
 #include "tools/ini_configuration.h"
-#include "LineDrawer.h"
-#include "MyLSystem2D.h"
-#include "tools/vector3d.h"
-#include "Figure.h"
+
 #include "Drawing3D.h"
-#include "Solid3D.h"
 #include "MyParser.h"
-#include "MyTools.h"
-#include "MyLSystem3D.h"
-#include "Transformations.h"
 
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <list>
-#include <cmath>
-
 
 //todo: logging
 //todo: more efficient code
 //todo: error handling
+//todo: every throw needs a catch
 //todo: remove using namespace std
 //todo delete MyTools class
-
-using namespace std;
 
 
 img::EasyImage generateImage(const ini::Configuration &conf) {
@@ -35,10 +25,8 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
     if (success_enum!=success) {
         return image;
     }
-    string type = drawing.getType();
 
     Drawing3D::dispatch_drawing_by_type(drawing, conf, image);
-
 
     std::ofstream fout("../../out.bmp", std::ios::binary);
     fout << image;

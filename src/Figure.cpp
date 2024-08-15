@@ -117,19 +117,19 @@ void Figure::setFractalscale(double fractalscale) {
     Figure::fractalscale = fractalscale;
 }
 
-const string &Figure::getType() const {
+const std::string &Figure::getType() const {
     return type;
 }
 
-void Figure::setType(const string &type) {
+void Figure::setType(const std::string &type) {
     Figure::type = type;
 }
 
-const string &Figure::getName() const {
+const std::string &Figure::getName() const {
     return name;
 }
 
-void Figure::setName(const string &name) {
+void Figure::setName(const std::string &name) {
     Figure::name = name;
 }
 

@@ -14,13 +14,6 @@
 #include "Light.h"
 #include "Color.h"
 
-
-
-using namespace std;
-
-
-
-
 class Point2D {
 public:
     Point2D(double x, double y) : x(x), y(y) {};
@@ -71,7 +64,7 @@ public:
 
     static void setBackground(img::EasyImage &image, Color &bgColor);
 
-    static vector<Point2D> getPointArray (const Lines2D &lines);
+    static std::vector<Point2D> getPointArray (const Lines2D &lines);
 
     static img::EasyImage draw2Dlines(Lines2D &lines, const int size, Color &bgColor);;
 

@@ -15,80 +15,78 @@
 #include <fstream>
 #include <algorithm>
 
-using namespace std;
-
 class Color;
 
 class MyLSystem2D {
-    vector<Point2D> points;
+    std::vector<Point2D> points;
 
 private:
-    string inputfile;
-    set<char> alphabet;
+    std::string inputfile;
+    std::set<char> alphabet;
     double Angle;
-    string initiator;
+    std::string initiator;
     double starting_angle;
-    string finalString;    // Result string after the rules rules have been applied (i times)
-    map<char, int> drawFunction;
+    std::string finalString;    // Result std::string after the rules rules have been applied (i times)
+    std::map<char, int> drawFunction;
     Lines2D lines;
-    map<char, string> rules;
+    std::map<char, std::string> rules;
     int size;
     Color color;
     Color bgColor;
     unsigned int iterations;
 
 public:
-    MyLSystem2D(string inputfile) : inputfile(inputfile) {parser(inputfile);}
+    MyLSystem2D(std::string inputfile) : inputfile(inputfile) {parser(inputfile);}
 
-    int parser(string inputfile);
+    int parser(std::string inputfile);
 
-    void computePoints(vector<Point2D> &points);
+    void computePoints(std::vector<Point2D> &points);
 
-    void _str2Points(const string &str, vector<Point2D> &points);
+    void _str2Points(const std::string &str, std::vector<Point2D> &points);
 
     Point2D _computeNextPoint(Point2D &p1, double angle);
 
-    void setAlphabet(const set<char> &alphabet);
+    void setAlphabet(const std::set<char> &alphabet);
 
     void setAngle(double angle);
 
-    void setInitiator(const string &initiator);
+    void setInitiator(const std::string &initiator);
 
     void setStartingAngle(double startingAngle);
 
-    void setPoints(const vector<Point2D> &points);
+    void setPoints(const std::vector<Point2D> &points);
 
-    void applyReplacement(string &s);
+    void applyReplacement(std::string &s);
 
-    vector<Point2D> const getPoints();
+    std::vector<Point2D> const getPoints();
 
-    const string &getInputfile() const;
+    const std::string &getInputfile() const;
 
-    void setInputfile(const string &inputfile);
+    void setInputfile(const std::string &inputfile);
 
-    const set<char> &getAlphabet() const;
+    const std::set<char> &getAlphabet() const;
 
     double getAngle() const;
 
-    const string &getInitiator() const;
+    const std::string &getInitiator() const;
 
     double getStartingAngle() const;
 
-    const string &getFinalString() const;
+    const std::string &getFinalString() const;
 
-    void setFinalString(const string &finalString);
+    void setFinalString(const std::string &finalString);
 
-    const map<char, int> &getDrawFunction() const;
+    const std::map<char, int> &getDrawFunction() const;
 
-    void setDrawFunction(const map<char, int> &drawFunction);
+    void setDrawFunction(const std::map<char, int> &drawFunction);
 
     const Lines2D &getLines() const;
 
     void setLines(const Lines2D &lines);
 
-    const map<char, string> &getRules() const;
+    const std::map<char, std::string> &getRules() const;
 
-    void setRules(const map<char, string> &rules);
+    void setRules(const std::map<char, std::string> &rules);
 
     int getSize() const;
 

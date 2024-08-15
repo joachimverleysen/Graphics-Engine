@@ -15,7 +15,7 @@ MyLSystem2D MyParser::parse_Lsystem2D(const ini::Configuration &conf) {
     int size = conf["General"]["size"].as_int_or_die();
 
     vector<double> bgColor = conf["General"]["backgroundcolor"].as_double_tuple_or_die();
-    string inputfile = conf["2DLSystem"]["inputfile"].as_string_or_die();
+    std::string inputfile = conf["2DLSystem"]["inputfile"].as_string_or_die();
     vector<double> color = conf["2DLSystem"]["color"].as_double_tuple_or_die();
     MyLSystem2D result(inputfile);
     result.setSize(size);
