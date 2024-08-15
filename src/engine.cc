@@ -30,7 +30,6 @@ using namespace std;
 
 img::EasyImage generateImage(const ini::Configuration &conf) {
     img::EasyImage image;
-    MyTools mt;
     Drawing3D drawing;
     SuccessEnum success_enum = MyParser::drawing3D_parse(conf, drawing);
     if (success_enum!=success) {
@@ -38,41 +37,7 @@ img::EasyImage generateImage(const ini::Configuration &conf) {
     }
     string type = drawing.getType();
 
-    //todo: move code to seperate files
-    if (type=="ZBufferedWireframe") {
-        Vector3D eye = drawing.getEye();
-        Color bgColor = drawing.getBgColor();
-        Figures3D figs = drawing.getFigures();
-        Transformations::apply_transformations(figs);
-        Transformations::to_eye_system(figs, drawing.getEye());
-        Lines2D lines = Transformations::do_projection(figs);
-        image = LineDrawer::draw2Dlines(lines, drawing.getSize(), bgColor);
-    }
-    else if (type=="ZBuffering") {
-        image = Drawing3D::zbuffDrawing(drawing);
-    }
-    else if (type=="Wireframe") {
-        Vector3D eye = drawing.getEye();
-        Color bgColor = drawing.getBgColor();
-        Figures3D figs = drawing.getFigures();
-        Transformations::apply_transformations(figs);
-        Transformations::to_eye_system(figs, drawing.getEye());
-
-        Lines2D lines = Transformations::do_projection(figs);
-        image = LineDrawer::draw2Dlines(lines, drawing.getSize(), bgColor);
-    }
-    else if (type == "2DLSystem") {
-        MyLSystem2D ls = MyParser::parse_Lsystem2D(conf);
-        Color bgColor = ls.getBgColor();
-        vector<Point2D> points;
-        ls.computePoints(points);
-        ls.setPoints(points);
-        Lines2D lines = mt.getLineArray2D(points, ls.getColor());
-        image = LineDrawer::draw2Dlines(lines, drawing.getSize(), bgColor);
-    }
-    else if (type == "LightedZBuffering") {
-        image = Drawing3D::zbuffDrawing(drawing);
-    }
+    Drawing3D::dispatch_drawing_by_type(drawing, conf, image);
 
 
     std::ofstream fout("../../out.bmp", std::ios::binary);

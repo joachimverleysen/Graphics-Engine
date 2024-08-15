@@ -48,6 +48,7 @@ set(engine_sources
 		src/Lsystem2D_parser.cpp
 		src/Transformations.h
 		src/Transformations.cpp
+		src/drawing_dispatcher.cpp
 )
 
 ############################################################

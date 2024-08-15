@@ -13,6 +13,8 @@
 #include <iostream>
 #include "Light.h"
 #include "Transformations.h"
+#include "ini_configuration.h"
+
 using namespace std;
 
 class Drawing3D {
@@ -75,6 +77,8 @@ public:
     void setLights(const Lights3D &lights);
 
     static img::EasyImage zbuffDrawing(Drawing3D &drawing);
+
+    static void dispatch_drawing_by_type(Drawing3D &drawing, const ini::Configuration &conf, img::EasyImage &image);
 };
 
 
