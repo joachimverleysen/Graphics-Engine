@@ -14,7 +14,6 @@
 //todo: more efficient code
 //todo: error handling
 //todo: every throw needs a catch
-//todo: remove using namespace std
 //todo delete MyTools class
 
 
