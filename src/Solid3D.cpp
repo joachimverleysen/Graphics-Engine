@@ -438,7 +438,6 @@ void Solid3D::generateTorus(Figure &fig, const double r, const double R, const i
 }
 
 void Solid3D::generateFractal(Figure &fig, Figures3D &fractal, const int nr_iterations, const double scale) {
-    MyTools mt;
 
     int count = nr_iterations;
     fractal.push_back(fig);
@@ -451,12 +450,11 @@ void Solid3D::generateFractal(Figure &fig, Figures3D &fractal, const int nr_iter
             for (int i=0; i!=original.getPoints().size(); i++){
                 Figure fig_copy = fig;
 
-                //todo: use Transformations class
-                mt.applyTransformation(fig_copy, scale_mtx);
+                Transformations::apply_transformation(fig_copy, scale_mtx);
                 Vector3D point_new = fig_copy.getPoints()[i];
                 Vector3D trans = original.getPoints()[i] - point_new    ;
                 auto trans_mtx = Transformations::get_translate_mtx(trans);
-                mt.applyTransformation(fig_copy, trans_mtx);
+                Transformations::apply_transformation(fig_copy, trans_mtx);
                 fractal.push_back(fig_copy);
             }
         }

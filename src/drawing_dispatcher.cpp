@@ -15,7 +15,7 @@
 void Drawing3D::dispatch_drawing_by_type(Drawing3D &drawing, const ini::Configuration &conf, img::EasyImage &image) {
     std::string type = drawing.getType();
     if (type=="ZBufferedWireframe") {
-        Vector3D eye = drawing.getEye();
+        // NOTE: This includes 3D L-systems
         Color bgColor = drawing.getBgColor();
         Figures3D figs = drawing.getFigures();
         Transformations::apply_transformations(figs);
@@ -27,7 +27,6 @@ void Drawing3D::dispatch_drawing_by_type(Drawing3D &drawing, const ini::Configur
         image = Drawing3D::zbuffDrawing(drawing);
     }
     else if (type=="Wireframe") {
-        Vector3D eye = drawing.getEye();
         Color bgColor = drawing.getBgColor();
         Figures3D figs = drawing.getFigures();
         Transformations::apply_transformations(figs);
@@ -42,7 +41,7 @@ void Drawing3D::dispatch_drawing_by_type(Drawing3D &drawing, const ini::Configur
         vector<Point2D> points;
         ls.computePoints(points);
         ls.setPoints(points);
-        Lines2D lines = MyTools::getLineArray2D(points, ls.getColor());
+        Lines2D lines = Figure::getLineArray2D(points, ls.getColor());
         image = LineDrawer::draw2Dlines(lines, drawing.getSize(), bgColor);
     }
     else if (type == "LightedZBuffering") {

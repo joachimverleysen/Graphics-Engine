@@ -4,9 +4,11 @@
 
 #ifndef MYENGINE_FIGURE_H
 #define MYENGINE_FIGURE_H
-#include "MyTools.h"
 #include "tools/vector3d.h"
+#include "Color.h"
+#include "LineDrawer.h"
 #include <vector>
+
 using std::vector;
 
 class Face {
@@ -114,6 +116,11 @@ public:
     void setDiffuseReflection(const Color &diffuseReflection);
 
 
+    static void triangulateFigure(Figure &fig);
+
+    static Lines2D computeLines(Figure &fig);
+
+    static Lines2D getLineArray2D(const vector<Point2D> &points, Color col);
 };
 
 typedef std::list<Figure> Figures3D;

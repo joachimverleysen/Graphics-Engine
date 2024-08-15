@@ -145,9 +145,9 @@ Lines2D Transformations::do_projection(Figures3D &figures) {
         fig.setProjPoints(proj_points);
         Lines2D  lines;
         if (fig.getType() == "3DLsystem") {
-            lines = MyTools::getLineArray2D(fig.getProjPoints(), fig.getColor());
+            lines = Figure::getLineArray2D(fig.getProjPoints(), fig.getColor());
         }
-        else lines = MyTools::computeLines(fig);
+        else lines = Figure::computeLines(fig);
         result.insert(result.end(), lines.begin(), lines.end());
     }
     return result;
@@ -173,4 +173,15 @@ void Transformations::apply_transformations(Figure &figure) {
         converted_points.push_back(point_new);
     }
     figure.setPoints(converted_points);
+}
+
+void Transformations::apply_transformation(Figure &figure, const Matrix& trans) {
+    auto points = figure.getPoints();
+    vector<Vector3D> points_new;
+    for (auto p : points) {
+        Vector3D point_new = Vector3D::point(p.x, p.y, p.z);
+        point_new *= trans;
+        points_new.push_back(point_new);
+    }
+    figure.setPoints(points_new);
 }

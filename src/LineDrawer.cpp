@@ -3,7 +3,6 @@
 //
 
 #include "LineDrawer.h"
-#include "MyTools.h"
 #include <fstream>
 
 std::vector<Point2D> LineDrawer::getPointArray(const Lines2D &lines) {
@@ -362,44 +361,6 @@ Color getAmbientComponent(Light l, Color ambientReflec) {
 
     Color result(redPCT, greenPCT, bluePCT);
     return result;
-}
-
-Color getDiffuseComponent(Vector3D w, Light li, Color diffReflec) {
-    MyTools mt;
-    Vector3D direction = li.direction;
-    direction.normalise();
-    double redPCT = 0;  // Percentage value
-    double bluePCT = 0;  // Percentage value
-    double greenPCT = 0;  // Percentage value
-
-    Vector3D Ld = direction;
-
-    Vector3D n = w;
-    n.normalise();
-    Vector3D l = Ld;
-    l.normalise();
-    l *= -1;
-
-    double scalprod = n.x * l.x + n.y * l.y + n.z * l.z;
-    if (scalprod<0) return Color(0,0,0);
-
-
-    redPCT += (li.diffuseLight.red / 255);
-    greenPCT += (li.diffuseLight.green / 255);
-    bluePCT += (li.diffuseLight.blue / 255);
-
-
-    redPCT *= (diffReflec.red/255) * scalprod;
-    greenPCT *= (diffReflec.green / 255) * scalprod;
-    bluePCT *= (diffReflec.blue / 255) * scalprod;
-
-    if (redPCT>1) redPCT=1;
-    if (greenPCT>1) greenPCT=1;
-    if (bluePCT>1) bluePCT=1;
-
-    Color result(redPCT, greenPCT, bluePCT);
-    return result;
-
 }
 
 //todo: function should receive projected points as parameters

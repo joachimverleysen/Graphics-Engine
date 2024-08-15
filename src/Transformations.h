@@ -8,10 +8,19 @@
 
 #include "Drawing3D.h"
 
+struct polars {
+    double r;
+    double theta;
+    double phi;
+    polars(double r, double theta, double phi) : r(r), theta(theta), phi(phi) {};
+};
+
 class Transformations {
 public:
 
 static void apply_transformations(Figure &figure);
+
+static void apply_transformation(Figure &figure, const Matrix& trans);
 
 static void apply_transformations(Figures3D &figures);
 

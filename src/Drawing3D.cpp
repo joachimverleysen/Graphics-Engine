@@ -97,7 +97,7 @@ img::EasyImage Drawing3D::zbuffDrawing(Drawing3D &drawing) {
     Transformations::to_eye_system(figs, drawing.getEye());
 
     for (auto& f : figs) {
-        MyTools::triangulateFigure(f);
+        Figure::triangulateFigure(f);
     }
 
     Lines2D lines = Transformations::do_projection(figs);
