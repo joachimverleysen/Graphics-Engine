@@ -1,6 +1,13 @@
 # Graphics engine
 
-![Donuts](images/donuts.png) ![3d-fractal](images/3d_fractal.png)
+![Donuts](images/donuts.png)
+
+*Figure 1: Line drawing of two toruses*
+
+![3d-fractal](images/3d_fractal.png)
+
+*Figure 2: 3D-fractal line drawing*
+
 
 ## Introduction
 
