@@ -1,6 +1,6 @@
 # Graphics engine
 
-![Donuts](images/screenshot.png)
+![Donuts](images/donuts.png)
 
 ## Introduction
 
