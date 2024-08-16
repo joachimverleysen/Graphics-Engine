@@ -1,5 +1,7 @@
 # Graphics engine
 
+![Donuts](images/screenshot.png)
+
 ## Introduction
 
 This graphical engine was developed as a project during my first year of Computer Science studies. The goal was to explore 
