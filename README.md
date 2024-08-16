@@ -1,6 +1,6 @@
 # Graphics engine
 
-![Donuts](images/donuts.png)
+![Donuts](images/donuts.png) ![3d-fractal](images/3d_fractal.png)
 
 ## Introduction
 
