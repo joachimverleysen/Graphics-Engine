@@ -1,4 +1,4 @@
-# Graphics engine (test??)
+# Graphics engine
 
 ![Donuts](images/donuts.png)
 
